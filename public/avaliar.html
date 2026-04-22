@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avaliar Atendimento - JS AutoCar</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚗</text></svg>" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .avaliar-page { min-height: 100vh; display: flex; flex-direction: column; }
+    .avaliar-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 3rem 1rem; }
+    .avaliar-card { background: #fff; border-radius: 16px; box-shadow: 0 8px 48px rgba(0,0,0,.12); padding: 3rem; max-width: 500px; width: 100%; }
+    .avaliar-card h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: .5rem; }
+    .avaliar-card .subtitle { color: #6b7280; margin-bottom: 2rem; }
+    .stars-input { display: flex; gap: .5rem; margin-bottom: 1.5rem; font-size: 2.5rem; cursor: pointer; }
+    .star-btn { background: none; border: none; cursor: pointer; font-size: 2.5rem; line-height: 1; padding: 0; transition: transform .1s; }
+    .star-btn:hover { transform: scale(1.15); }
+    .star-btn.active { color: #f59e0b; }
+    .star-btn:not(.active) { color: #d1d5db; }
+    .success-msg { text-align: center; padding: 2rem 0; }
+    .success-msg .big-icon { font-size: 4rem; margin-bottom: 1rem; }
+    .success-msg h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: .5rem; }
+    .success-msg p { color: #6b7280; margin-bottom: 1.5rem; }
+  </style>
+</head>
+<body class="avaliar-page">
+
+<header class="header">
+  <div class="container header-inner">
+    <a href="/" class="logo">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <rect width="32" height="32" rx="8" fill="#0066ff"/>
+        <path d="M6 18l2-6h16l2 6H6z" fill="white" opacity=".9"/>
+        <circle cx="10" cy="21" r="2.5" fill="white"/>
+        <circle cx="22" cy="21" r="2.5" fill="white"/>
+      </svg>
+      <span>JS <strong>AutoCar</strong></span>
+    </a>
+  </div>
+</header>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<main class="avaliar-main">
+  <div class="avaliar-card">
+
+    <div id="formSection">
+      <h1>⭐ Avaliar atendimento</h1>
+      <p class="subtitle">Sua opinião nos ajuda a melhorar cada vez mais!</p>
+
+      <form id="avaliarForm" onsubmit="enviarAvaliacao(event)">
+        <div class="form-group" style="margin-bottom:1.25rem">
+          <label>Seu nome *</label>
+          <input type="text" id="aNome" placeholder="Como quer ser identificado?" required />
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.25rem">
+          <label>Sua nota *</label>
+          <div class="stars-input" id="starsInput">
+            <button type="button" class="star-btn" data-v="1" onclick="setStar(1)">★</button>
+            <button type="button" class="star-btn" data-v="2" onclick="setStar(2)">★</button>
+            <button type="button" class="star-btn" data-v="3" onclick="setStar(3)">★</button>
+            <button type="button" class="star-btn" data-v="4" onclick="setStar(4)">★</button>
+            <button type="button" class="star-btn" data-v="5" onclick="setStar(5)">★</button>
+          </div>
+          <input type="hidden" id="aNota" required />
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.5rem">
+          <label>Comentário <span class="optional">(opcional)</span></label>
+          <textarea id="aComentario" placeholder="Conte como foi sua experiência..." rows="4"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" id="btnEnviar" style="width:100%;justify-content:center">
+          Enviar avaliação
+        </button>
+      </form>
+    </div>
+
+    <div id="successSection" style="display:none" class="success-msg">
+      <div class="big-icon">🎉</div>
+      <h2>Obrigado pela avaliação!</h2>
+      <p>Seu comentário será revisado e publicado em breve. Valorizamos muito sua opinião!</p>
+      <a href="/" class="btn btn-primary" style="display:inline-flex">← Voltar ao início</a>
+    </div>
+
+  </div>
+</main>
+
+<script>
+let nota = 0;
+
+function setStar(v) {
+  nota = v;
+  document.getElementById('aNota').value = v;
+  document.querySelectorAll('.star-btn').forEach((b, i) => {
+    b.classList.toggle('active', i < v);
+  });
+}
+
+async function enviarAvaliacao(e) {
+  e.preventDefault();
+  if (!nota) { showToast('Selecione uma nota.', 'warning'); return; }
+
+  const btn = document.getElementById('btnEnviar');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+
+  try {
+    const r = await fetch('/api/avaliacoes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome: document.getElementById('aNome').value.trim(),
+        nota,
+        comentario: document.getElementById('aComentario').value.trim()
+      })
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error);
+    document.getElementById('formSection').style.display = 'none';
+    document.getElementById('successSection').style.display = '';
+  } catch (err) {
+    showToast(err.message || 'Erro ao enviar avaliação.', 'error');
+    btn.disabled = false; btn.textContent = 'Enviar avaliação';
+  }
+}
+
+function showToast(msg, type = 'success') {
+  const ct = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${type === 'error' ? '✗' : '!'}</span><span>${msg}</span>`;
+  ct.appendChild(t);
+  setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 300); }, 4000);
+}
+</script>
+</body>
+</html>

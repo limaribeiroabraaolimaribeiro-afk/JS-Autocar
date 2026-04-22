@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -X POST http://localhost:3000/api/agendamentos -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('OK -', len\\(d\\), 'servicos'\\)\")"
+    ]
+  }
+}

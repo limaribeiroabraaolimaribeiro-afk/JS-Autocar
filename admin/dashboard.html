@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - JS AutoCar Admin</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-logo">
+      <div class="icon">🚗</div>
+      <div class="name">JS <span>AutoCar</span></div>
+    </div>
+  </div>
+  <div class="sidebar-user">
+    Olá, <strong id="sidebarUser">admin</strong>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Menu</div>
+    <div class="nav-item active" data-tab="agendamentos" onclick="showTab('agendamentos')">
+      <span class="nav-icon">📅</span> Agendamentos
+      <span class="nav-badge" id="badgeAgendamentos" style="display:none">0</span>
+    </div>
+    <div class="nav-item" data-tab="horarios" onclick="showTab('horarios')">
+      <span class="nav-icon">🕐</span> Horários
+    </div>
+    <div class="nav-item" data-tab="servicos" onclick="showTab('servicos')">
+      <span class="nav-icon">🔧</span> Serviços
+    </div>
+    <div class="nav-item" data-tab="avaliacoes" onclick="showTab('avaliacoes')">
+      <span class="nav-icon">⭐</span> Avaliações
+    </div>
+    <div class="nav-item" data-tab="configuracoes" onclick="showTab('configuracoes')">
+      <span class="nav-icon">⚙️</span> Configurações
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="doLogout()">Sair da conta</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-content">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:1rem">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <span class="topbar-title" id="topbarTitle">Agendamentos</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-time" id="topbarTime"></span>
+      <a href="/" target="_blank" class="btn btn-secondary" style="font-size:.75rem;padding:.35rem .75rem">Ver site ↗</a>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ─── TAB: AGENDAMENTOS ─── -->
+    <div id="tab-agendamentos">
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card blue"><div class="sc-label">Hoje</div><div class="sc-value" id="statHoje">-</div><div class="sc-sub">agendamentos</div></div>
+        <div class="stat-card yellow"><div class="sc-label">Pendentes</div><div class="sc-value" id="statPendentes">-</div><div class="sc-sub">aguardando</div></div>
+        <div class="stat-card green"><div class="sc-label">Confirmados</div><div class="sc-value" id="statConfirmados">-</div><div class="sc-sub">este mês</div></div>
+        <div class="stat-card"><div class="sc-label">Total</div><div class="sc-value" id="statTotal">-</div><div class="sc-sub">todos os tempos</div></div>
+      </div>
+
+      <div class="section-hdr">
+        <h2>Agendamentos</h2>
+        <div class="filter-tabs">
+          <div class="filter-tab active" data-filter="" onclick="setFilter('')">Todos</div>
+          <div class="filter-tab" data-filter="hoje" onclick="setFilter('hoje')">Hoje</div>
+          <div class="filter-tab" data-filter="proximos7" onclick="setFilter('proximos7')">Próx. 7 dias</div>
+          <div class="filter-tab" data-filter="pendentes" onclick="setFilter('pendentes')">Pendentes</div>
+          <div class="filter-tab" data-filter="confirmados" onclick="setFilter('confirmados')">Confirmados</div>
+          <div class="filter-tab" data-filter="concluidos" onclick="setFilter('concluidos')">Concluídos</div>
+          <div class="filter-tab" data-filter="cancelados" onclick="setFilter('cancelados')">Cancelados</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table id="agendamentosTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Data/Hora</th>
+                <th>Cliente</th>
+                <th>Carro</th>
+                <th>Serviço(s)</th>
+                <th>Valor</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="agendamentosBody">
+              <tr><td colspan="8" style="text-align:center;color:#6b7280;padding:3rem">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── TAB: HORÁRIOS ─── -->
+    <div id="tab-horarios" style="display:none">
+      <div class="section-hdr">
+        <h2>Gerenciar Horários</h2>
+      </div>
+      <div class="admin-cal-wrap">
+        <div class="cal-card">
+          <h3>Calendário</h3>
+          <div class="admin-calendar-nav">
+            <button class="cal-nav-btn" id="adminCalPrev">‹</button>
+            <span class="admin-cal-month" id="adminCalMonth"></span>
+            <button class="cal-nav-btn" id="adminCalNext">›</button>
+          </div>
+          <div class="admin-cal-grid" id="adminCalGrid"></div>
+          <div style="margin-top:1rem;font-size:.75rem;color:#6b7280">
+            Clique em um dia para gerenciar os horários
+          </div>
+
+          <div class="bulk-section">
+            <h4>Criar grade em lote</h4>
+            <div class="form-group" style="margin-bottom:.75rem">
+              <label>Horários padrão (um por linha, ex: 08:00)</label>
+              <textarea id="bulkHoras" rows="5" placeholder="08:00&#10;09:00&#10;10:00&#10;11:00&#10;13:00&#10;14:00&#10;15:00&#10;16:00&#10;17:00"></textarea>
+            </div>
+            <div class="form-group" style="margin-bottom:.75rem">
+              <label>Aplicar nos próximos N dias úteis (seg-sáb)</label>
+              <input type="number" id="bulkDias" value="30" min="1" max="180" />
+            </div>
+            <button class="btn btn-primary" onclick="criarGradeEmLote()">Gerar grade de horários</button>
+          </div>
+        </div>
+
+        <div class="cal-card" id="horariosDayCard" style="display:none">
+          <h3 id="horariosDayTitle">Horários do dia</h3>
+          <div class="horarios-admin-grid" id="horariosAdminGrid"></div>
+          <div class="add-hora-row">
+            <input type="time" id="novoHora" />
+            <button class="btn btn-primary" onclick="adicionarHorario()">+ Adicionar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── TAB: SERVIÇOS ─── -->
+    <div id="tab-servicos" style="display:none">
+      <div class="section-hdr">
+        <h2>Serviços</h2>
+        <button class="btn btn-primary" onclick="openServicoModal()">+ Novo serviço</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table id="servicosTable">
+            <thead>
+              <tr>
+                <th>Serviço</th>
+                <th>Preço</th>
+                <th>Duração</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="servicosBody">
+              <tr><td colspan="5" style="text-align:center;color:#6b7280;padding:3rem">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── TAB: AVALIAÇÕES ─── -->
+    <div id="tab-avaliacoes" style="display:none">
+      <div class="section-hdr">
+        <h2>Avaliações</h2>
+        <div class="filter-tabs">
+          <div class="filter-tab active" data-ravfilt="todas" onclick="setRavFilter('todas')">Todas</div>
+          <div class="filter-tab" data-ravfilt="pendente" onclick="setRavFilter('pendente')">Pendentes</div>
+          <div class="filter-tab" data-ravfilt="publicada" onclick="setRavFilter('publicada')">Publicadas</div>
+          <div class="filter-tab" data-ravfilt="oculta" onclick="setRavFilter('oculta')">Ocultas</div>
+        </div>
+      </div>
+      <div class="reviews-admin-list" id="avaliacoesAdminList">
+        <div style="text-align:center;color:#6b7280;padding:3rem">Carregando...</div>
+      </div>
+    </div>
+
+    <!-- ─── TAB: CONFIGURAÇÕES ─── -->
+    <div id="tab-configuracoes" style="display:none">
+      <div class="settings-card">
+        <h3>Contato e localização</h3>
+        <div class="form-grid" style="gap:1rem">
+          <div class="form-group">
+            <label>Número WhatsApp (somente dígitos, com DDI)</label>
+            <input type="text" id="cfgWa" placeholder="5547999999999" />
+          </div>
+          <div class="form-group">
+            <label>Endereço da lavação</label>
+            <input type="text" id="cfgEndereco" placeholder="Rua das Lavações, 123 - Centro" />
+          </div>
+          <div class="form-group">
+            <label>Horário de funcionamento</label>
+            <input type="text" id="cfgHorario" placeholder="Seg-Sex 8h às 18h | Sáb 8h às 14h" />
+          </div>
+        </div>
+        <div style="margin-top:1.25rem">
+          <button class="btn btn-primary" onclick="salvarConfigs()">Salvar configurações</button>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3>Alterar senha do admin</h3>
+        <div class="form-grid form-grid-2">
+          <div class="form-group">
+            <label>Senha atual</label>
+            <input type="password" id="cfgSenhaAtual" placeholder="••••••••" />
+          </div>
+          <div class="form-group">
+            <label>Nova senha (mín. 6 caracteres)</label>
+            <input type="password" id="cfgNovaSenha" placeholder="••••••••" />
+          </div>
+        </div>
+        <div style="margin-top:1.25rem">
+          <button class="btn btn-primary" onclick="alterarSenha()">Alterar senha</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main-content -->
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ─── MODAL: SERVIÇO ─── -->
+<div class="modal-overlay" id="servicoModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="servicoModalTitle">Novo serviço</h3>
+      <button class="modal-close" onclick="closeServicoModal()">×</button>
+    </div>
+
+    <div class="form-grid" style="gap:1rem">
+      <div class="form-group">
+        <label>Nome *</label>
+        <input type="text" id="smNome" placeholder="Ex: Polimento completo" />
+      </div>
+      <div class="form-group">
+        <label>Descrição</label>
+        <textarea id="smDesc" rows="3" placeholder="Descreva o serviço..."></textarea>
+      </div>
+      <div class="form-grid form-grid-2">
+        <div class="form-group">
+          <label>Preço (R$) — opcional</label>
+          <input type="number" id="smPreco" step="0.01" placeholder="0.00" min="0" />
+        </div>
+        <div class="form-group">
+          <label>Duração (minutos) *</label>
+          <input type="number" id="smDuracao" placeholder="60" min="1" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Imagem</label>
+        <div class="upload-area" onclick="document.getElementById('smImgInput').click()">
+          <input type="file" id="smImgInput" accept="image/jpeg,image/png,image/webp" onchange="previewImagem(this)" />
+          <div class="upload-label">Clique para selecionar JPG/PNG (máx 5MB)</div>
+          <img id="smImgPreview" class="upload-preview" style="display:none" />
+        </div>
+        <input type="hidden" id="smImgPath" />
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <div class="toggle-wrap">
+          <label class="toggle">
+            <input type="checkbox" id="smAtivo" checked />
+            <span class="toggle-slider"></span>
+          </label>
+          <span id="smAtivoLabel">Ativo (visível no site)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeServicoModal()">Cancelar</button>
+      <button class="btn btn-primary" id="smSaveBtn" onclick="salvarServico()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: DETALHE AGENDAMENTO ─── -->
+<div class="modal-overlay" id="detalheModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Detalhes do agendamento</h3>
+      <button class="modal-close" onclick="closeModal('detalheModal')">×</button>
+    </div>
+    <div id="detalheBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('detalheModal')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODAL: CONFIRMAÇÃO ─── -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal modal-sm">
+    <div class="confirm-icon-wrap" id="confirmIconWrap">⚠️</div>
+    <h3 class="confirm-title" id="confirmTitle">Confirmação</h3>
+    <p class="confirm-msg" id="confirmMsg"></p>
+    <p class="confirm-sub" id="confirmSub"></p>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="confirmCancelBtn">Cancelar</button>
+      <button class="btn btn-primary" id="confirmOkBtn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>

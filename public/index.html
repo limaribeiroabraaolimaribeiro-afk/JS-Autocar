@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="JS AutoCar - Lavação profissional de veículos. Agende online com facilidade e comodidade. Polimento, enceramento, limpeza completa." />
+  <meta name="keywords" content="lavação de carros, polimento automotivo, enceramento, agendamento online, JS AutoCar" />
+  <meta property="og:title" content="JS AutoCar - Lavação Profissional" />
+  <meta property="og:description" content="Agende seu serviço de lavação online. Rapidez, qualidade e comodidade." />
+  <title>JS AutoCar - Lavação Profissional</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚗</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header" id="header">
+  <div class="container header-inner">
+    <a href="/" class="logo">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <rect width="32" height="32" rx="8" fill="#0066ff"/>
+        <path d="M6 18l2-6h16l2 6H6z" fill="white" opacity=".9"/>
+        <circle cx="10" cy="21" r="2.5" fill="white"/>
+        <circle cx="22" cy="21" r="2.5" fill="white"/>
+        <path d="M8 15l1.5-4h13l1.5 4H8z" fill="white" opacity=".5"/>
+        <rect x="4" y="17" width="24" height="4" rx="1" fill="white" opacity=".2"/>
+      </svg>
+      <span>JS <strong>AutoCar</strong></span>
+    </a>
+    <nav class="header-info" id="headerInfo">
+      <span class="header-phone" id="headerWhatsapp">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.128.558 4.121 1.533 5.847L0 24l6.335-1.512A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.85 0-3.575-.5-5.062-1.37l-.363-.214-3.761.897.924-3.67-.236-.376A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        <span id="whatsappText">Carregando...</span>
+      </span>
+      <span class="header-addr" id="headerAddr">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        <span id="enderecoText">Carregando...</span>
+      </span>
+    </nav>
+    <button class="btn btn-primary btn-sm header-cta" onclick="iniciarAgendamento()">Agendar agora</button>
+  </div>
+</header>
+
+<!-- TOAST CONTAINER -->
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- MAIN CONTENT -->
+<main id="mainContent">
+
+  <!-- ──── HOME ──── -->
+  <section id="pageHome">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-bg"></div>
+      <div class="container hero-content">
+        <div class="hero-badge">⭐ Avaliado com 5 estrelas pelos clientes</div>
+        <h1 class="hero-title">Seu carro merece<br/><span class="highlight">o melhor tratamento</span></h1>
+        <p class="hero-subtitle">Lavação profissional, polimento e cuidados completos para o seu veículo. Agende online em poucos cliques.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg" onclick="iniciarAgendamento()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+            Agendar agora
+          </button>
+          <a href="#servicos" class="btn btn-outline btn-lg">Ver serviços</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat"><span class="stat-num">500+</span><span class="stat-label">Clientes atendidos</span></div>
+          <div class="stat-div"></div>
+          <div class="stat"><span class="stat-num">5★</span><span class="stat-label">Avaliação média</span></div>
+          <div class="stat-div"></div>
+          <div class="stat"><span class="stat-num">3+</span><span class="stat-label">Anos de experiência</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERVICES -->
+    <section class="section" id="servicos">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Nossos Serviços</h2>
+          <p class="section-subtitle">Escolha o serviço ideal para o seu veículo</p>
+        </div>
+        <div class="services-grid" id="servicesGrid">
+          <!-- Skeleton loaders -->
+          <div class="service-card skeleton-card">
+            <div class="skeleton skeleton-img"></div>
+            <div class="skeleton-body">
+              <div class="skeleton skeleton-line short"></div>
+              <div class="skeleton skeleton-line"></div>
+              <div class="skeleton skeleton-line med"></div>
+              <div class="skeleton skeleton-btn"></div>
+            </div>
+          </div>
+          <div class="service-card skeleton-card">
+            <div class="skeleton skeleton-img"></div>
+            <div class="skeleton-body">
+              <div class="skeleton skeleton-line short"></div>
+              <div class="skeleton skeleton-line"></div>
+              <div class="skeleton skeleton-line med"></div>
+              <div class="skeleton skeleton-btn"></div>
+            </div>
+          </div>
+          <div class="service-card skeleton-card">
+            <div class="skeleton skeleton-img"></div>
+            <div class="skeleton-body">
+              <div class="skeleton skeleton-line short"></div>
+              <div class="skeleton skeleton-line"></div>
+              <div class="skeleton skeleton-line med"></div>
+              <div class="skeleton skeleton-btn"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section class="section section-dark" id="avaliacoes-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">O que dizem nossos clientes</h2>
+          <p class="section-subtitle">Opiniões de quem já experimentou nossa qualidade</p>
+        </div>
+        <div class="reviews-grid" id="reviewsGrid">
+          <div class="review-loading">Carregando avaliações...</div>
+        </div>
+        <div style="text-align:center;margin-top:2rem">
+          <a href="avaliar.html" class="btn btn-outline-light">⭐ Deixar minha avaliação</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Como funciona?</h2>
+          <p class="section-subtitle">Três passos simples para agendar</p>
+        </div>
+        <div class="steps-grid">
+          <div class="step">
+            <div class="step-icon">1</div>
+            <h3>Escolha o serviço</h3>
+            <p>Selecione um ou mais serviços do nosso catálogo</p>
+          </div>
+          <div class="step-arrow">→</div>
+          <div class="step">
+            <div class="step-icon">2</div>
+            <h3>Escolha data e hora</h3>
+            <p>Veja a disponibilidade no calendário e escolha o melhor horário</p>
+          </div>
+          <div class="step-arrow">→</div>
+          <div class="step">
+            <div class="step-icon">3</div>
+            <h3>Confirme pelo WhatsApp</h3>
+            <p>Preencha seus dados e confirme direto pelo WhatsApp</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </section>
+
+  <!-- ──── BOOKING STEP 1: SERVICES ──── -->
+  <section id="pageServicos" class="page-hidden">
+    <div class="container booking-container">
+      <div class="booking-header">
+        <button class="btn-back" onclick="voltarHome()">← Voltar</button>
+        <div class="booking-steps">
+          <div class="bstep active" data-step="1">1 Serviços</div>
+          <div class="bstep" data-step="2">2 Data/Hora</div>
+          <div class="bstep" data-step="3">3 Confirmar</div>
+        </div>
+      </div>
+      <h2 class="booking-title">Escolha os serviços</h2>
+      <p class="booking-subtitle">Selecione um ou mais serviços. Você pode combinar.</p>
+      <div class="services-select-grid" id="servicesSelectGrid">
+        <div class="loading-text">Carregando serviços...</div>
+      </div>
+      <div class="selected-summary" id="selectedSummary" style="display:none">
+        <div class="selected-list" id="selectedList"></div>
+        <div class="selected-total">
+          <span>Total estimado:</span>
+          <strong id="selectedTotal"></strong>
+          <span id="selectedDuration"></span>
+        </div>
+      </div>
+      <div class="booking-actions">
+        <button class="btn btn-primary btn-lg" onclick="irParaCalendario()" id="btnIrCalendario" disabled>
+          Escolher data e horário →
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ──── BOOKING STEP 2: CALENDAR ──── -->
+  <section id="pageCalendario" class="page-hidden">
+    <div class="container booking-container">
+      <div class="booking-header">
+        <button class="btn-back" onclick="voltarServicos()">← Voltar</button>
+        <div class="booking-steps">
+          <div class="bstep done" data-step="1">✓ Serviços</div>
+          <div class="bstep active" data-step="2">2 Data/Hora</div>
+          <div class="bstep" data-step="3">3 Confirmar</div>
+        </div>
+      </div>
+      <h2 class="booking-title">Escolha a data</h2>
+      <div class="calendar-wrapper">
+        <div class="calendar-nav">
+          <button class="cal-nav-btn" id="btnMesAnterior">‹</button>
+          <span class="cal-month-label" id="calMonthLabel"></span>
+          <button class="cal-nav-btn" id="btnMesProximo">›</button>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+        <div class="calendar-legend">
+          <span class="leg-item"><span class="leg-dot available"></span> Disponível</span>
+          <span class="leg-item"><span class="leg-dot unavailable"></span> Indisponível</span>
+          <span class="leg-item"><span class="leg-dot selected"></span> Selecionado</span>
+        </div>
+      </div>
+      <div id="horariosSection" style="display:none">
+        <h3 class="horarios-title" id="horariosTitle"></h3>
+        <div class="horarios-grid" id="horariosGrid"></div>
+      </div>
+      <div class="booking-actions" id="calendarActions" style="display:none">
+        <button class="btn btn-primary btn-lg" onclick="irParaConfirmacao()">
+          Confirmar horário →
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ──── BOOKING STEP 3: FORM ──── -->
+  <section id="pageFormulario" class="page-hidden">
+    <div class="container booking-container">
+      <div class="booking-header">
+        <button class="btn-back" onclick="voltarCalendario()">← Voltar</button>
+        <div class="booking-steps">
+          <div class="bstep done" data-step="1">✓ Serviços</div>
+          <div class="bstep done" data-step="2">✓ Data/Hora</div>
+          <div class="bstep active" data-step="3">3 Confirmar</div>
+        </div>
+      </div>
+      <h2 class="booking-title">Seus dados e confirmação</h2>
+
+      <div class="form-resumo" id="formResumo"></div>
+
+      <form class="booking-form" id="bookingForm" onsubmit="confirmarAgendamento(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nome completo *</label>
+            <input type="text" id="fNome" placeholder="Seu nome completo" required />
+          </div>
+          <div class="form-group">
+            <label>WhatsApp *</label>
+            <input type="tel" id="fTelefone" placeholder="(00) 00000-0000" required maxlength="15" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Modelo do carro *</label>
+            <input type="text" id="fCarro" placeholder="Ex: Honda Civic 2022" required />
+          </div>
+          <div class="form-group">
+            <label>Placa <span class="optional">(opcional)</span></label>
+            <input type="text" id="fPlaca" placeholder="ABC-1234" maxlength="8" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Observações <span class="optional">(opcional)</span></label>
+          <textarea id="fObs" placeholder="Alguma observação especial para o serviço?" rows="3"></textarea>
+        </div>
+        <div class="booking-actions">
+          <button type="submit" class="btn btn-whatsapp btn-lg" id="btnConfirmar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.128.558 4.121 1.533 5.847L0 24l6.335-1.512A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.85 0-3.575-.5-5.062-1.37l-.363-.214-3.761.897.924-3.67-.236-.376A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+            Confirmar e chamar no WhatsApp
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ──── SUCCESS ──── -->
+  <section id="pageSuccess" class="page-hidden">
+    <div class="container success-container">
+      <div class="success-icon">✅</div>
+      <h2>Agendamento registrado!</h2>
+      <p>Você será redirecionado ao WhatsApp para confirmar com a equipe JS AutoCar.</p>
+      <p class="success-note">Caso o WhatsApp não abra automaticamente, <a href="#" id="linkWhatsapp">clique aqui</a>.</p>
+      <button class="btn btn-primary" onclick="voltarHome()">Voltar ao início</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <span class="logo-text">JS <strong>AutoCar</strong></span>
+      <p id="footerHorario">Carregando horários...</p>
+    </div>
+    <div class="footer-links">
+      <h4>Links</h4>
+      <a href="#servicos">Serviços</a>
+      <a href="avaliar.html">Avaliar atendimento</a>
+      <a href="#" onclick="iniciarAgendamento()">Agendar</a>
+    </div>
+    <div class="footer-contact">
+      <h4>Contato</h4>
+      <p id="footerAddr">-</p>
+      <a href="#" id="footerWa" class="footer-wa">WhatsApp</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2024 JS AutoCar. Todos os direitos reservados.</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
