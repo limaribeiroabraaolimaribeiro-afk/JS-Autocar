@@ -1,6 +1,6 @@
 require('dotenv').config();
 const sqlite3 = require('sqlite3').verbose();
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const fs = require('fs');
 
 if (!fs.existsSync('./database')) fs.mkdirSync('./database', { recursive: true });
