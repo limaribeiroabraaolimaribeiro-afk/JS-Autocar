@@ -2,10 +2,13 @@
 .env.local
 .env.production
 
+# node_modules - Railway will run npm install fresh
+node_modules/
+
 # SQLite database (will be recreated from seed)
 # database/
 
-# Uploaded files (persistent volume on Railway)
+# Uploaded files (persistent volume on Railway)  
 # uploads/
 
 # Logs
