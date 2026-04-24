@@ -1,0 +1,17 @@
+.env
+.env.local
+.env.production
+
+# SQLite database (will be recreated from seed)
+# database/
+
+# Uploaded files (persistent volume on Railway)
+# uploads/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
