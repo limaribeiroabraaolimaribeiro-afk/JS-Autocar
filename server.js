@@ -10,16 +10,17 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 
 ['database', 'uploads', 'public', 'admin'].forEach(d => {
-  if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
+  if (!fs.existsSync(path.join(__dirname, d))) fs.mkdirSync(path.join(__dirname, d), { recursive: true });
 });
 
 // ────────────────────────────────────────
 // DATABASE
 // ────────────────────────────────────────
-const db = new sqlite3.Database('./database/autocar.db', err => {
+const db = new sqlite3.Database(path.join(__dirname, 'database', 'autocar.db'), err => {
   if (err) console.error('Erro DB:', err.message);
   else console.log('Banco de dados conectado.');
 });
@@ -116,7 +117,7 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback-secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
+  cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 }
 }));
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -124,7 +125,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 
 const storage = multer.diskStorage({
-  destination: (_, __, cb) => cb(null, 'uploads/'),
+  destination: (_, __, cb) => cb(null, path.join(__dirname, 'uploads')),
   filename: (_, file, cb) => cb(null, `srv-${Date.now()}${path.extname(file.originalname)}`)
 });
 const upload = multer({
