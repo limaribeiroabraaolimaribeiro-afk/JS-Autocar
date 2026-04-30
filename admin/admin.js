@@ -1,8 +1,5 @@
 // ─── API BASE URL ─────────────────────────────────────────────────────────────
-const API_BASE_URL =
-  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3000'
-    : 'https://js-autocar-api.onrender.com';
+const API_BASE_URL = '';
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
 const S = {
@@ -431,7 +428,8 @@ async function loadServicos() {
   const tbody = $('servicosBody');
   tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#6b7280;padding:2rem">Carregando...</td></tr>`;
   try {
-    S.servicos = await api('/api/services?all=1');
+    const svcResult = await api('/api/services?all=1');
+    S.servicos = svcResult.services || [];
     if (!S.servicos.length) {
       tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">🔧</div><p>Nenhum serviço cadastrado.</p></div></td></tr>`;
       return;

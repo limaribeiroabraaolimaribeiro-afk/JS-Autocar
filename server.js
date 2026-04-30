@@ -36,6 +36,9 @@ app.use('/api/timeslots',    require('./routes/timeslots'));
 app.get('/admin', (_, res) =>
   res.sendFile(path.join(__dirname, 'admin', 'login.html')));
 
+app.get('/admin/login', (_, res) =>
+  res.sendFile(path.join(__dirname, 'admin', 'login.html')));
+
 app.get('/admin/dashboard', (_, res) =>
   res.sendFile(path.join(__dirname, 'admin', 'dashboard.html')));
 
