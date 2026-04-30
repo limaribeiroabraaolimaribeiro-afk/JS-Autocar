@@ -161,6 +161,84 @@
       </div>
     </section>
 
+    <!-- GALERIA -->
+    <section class="section section-dark" id="galeria">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Galeria</h2>
+          <p class="section-subtitle">Confira nossos trabalhos</p>
+        </div>
+        <div class="gallery-grid" id="galeriaGrid">
+          <div class="review-loading">Carregando galeria...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTATO -->
+    <section class="section" id="contato">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Fale Conosco</h2>
+          <p class="section-subtitle">Envie uma mensagem e responderemos em breve</p>
+        </div>
+        <div class="contact-wrap">
+          <form class="contact-form" id="contactForm">
+            <div class="form-row">
+              <div class="form-group-light">
+                <label>Nome *</label>
+                <input type="text" id="contactNome" placeholder="Seu nome completo" required />
+              </div>
+              <div class="form-group-light">
+                <label>WhatsApp *</label>
+                <input type="tel" id="contactTel" placeholder="(00) 00000-0000" required maxlength="15" />
+              </div>
+            </div>
+            <div class="form-group-light">
+              <label>Mensagem *</label>
+              <textarea id="contactMsg" rows="4" placeholder="Como podemos te ajudar?" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg">Enviar mensagem</button>
+          </form>
+          <div class="contact-info">
+            <div class="contact-card">
+              <div class="cc-icon">📍</div>
+              <div>
+                <div class="cc-title">Endereço</div>
+                <div class="cc-value" id="enderecoContato">Carregando...</div>
+              </div>
+            </div>
+            <div class="contact-card">
+              <div class="cc-icon">🕐</div>
+              <div>
+                <div class="cc-title">Horário de Funcionamento</div>
+                <div class="cc-value" id="horarioContato">Carregando...</div>
+              </div>
+            </div>
+            <div class="contact-card">
+              <div class="cc-icon">💬</div>
+              <div>
+                <div class="cc-title">WhatsApp</div>
+                <a href="#" class="wa-link cc-value" target="_blank">Chamar no WhatsApp</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOCALIZAÇÃO -->
+    <section class="section section-dark" id="localizacao" style="display:none" id="mapsSection">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Localização</h2>
+          <p class="section-subtitle">Venha nos visitar</p>
+        </div>
+        <div class="maps-wrapper">
+          <iframe id="mapsFrame" width="100%" height="380" style="border:0;border-radius:12px" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" src=""></iframe>
+        </div>
+      </div>
+    </section>
+
   </section>
 
   <!-- ──── BOOKING STEP 1: SERVICES ──── -->
@@ -305,17 +383,20 @@
     <div class="footer-links">
       <h4>Links</h4>
       <a href="#servicos">Serviços</a>
+      <a href="#galeria">Galeria</a>
+      <a href="#contato">Contato</a>
       <a href="avaliar.html">Avaliar atendimento</a>
       <a href="#" onclick="iniciarAgendamento()">Agendar</a>
     </div>
     <div class="footer-contact">
       <h4>Contato</h4>
       <p id="footerAddr">-</p>
-      <a href="#" id="footerWa" class="footer-wa">WhatsApp</a>
+      <a href="#" id="footerWa" class="footer-wa wa-link" target="_blank">WhatsApp</a>
+      <a href="#" id="footerInstagram" class="footer-insta" target="_blank"></a>
     </div>
   </div>
   <div class="footer-bottom">
-    <p>© 2024 JS AutoCar. Todos os direitos reservados.</p>
+    <p>© 2025 JS AutoCar. Todos os direitos reservados.</p>
   </div>
 </footer>
 

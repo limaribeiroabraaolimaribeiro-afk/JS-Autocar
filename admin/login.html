@@ -9,10 +9,8 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Poppins', sans-serif;
-      background: #0a0a0a;
-      min-height: 100vh; display: flex; align-items: center; justify-content: center;
-      padding: 1rem;
+      font-family: 'Poppins', sans-serif; background: #0a0a0a;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem;
     }
     .login-wrap {
       background: #111827; border-radius: 16px;
@@ -21,10 +19,7 @@
       border: 1px solid rgba(255,255,255,.08);
     }
     .brand { display: flex; align-items: center; gap: .75rem; margin-bottom: 2.5rem; }
-    .brand-icon {
-      width: 48px; height: 48px; background: #0066ff; border-radius: 12px;
-      display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
-    }
+    .brand-icon { width: 48px; height: 48px; background: #0066ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
     .brand-name { font-size: 1.4rem; font-weight: 800; color: #fff; }
     .brand-name span { color: #1e90ff; }
     .brand-sub { font-size: .75rem; color: rgba(255,255,255,.4); }
@@ -35,15 +30,13 @@
     input {
       width: 100%; padding: .8rem 1rem; border-radius: 8px;
       border: 1.5px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05);
-      color: #fff; font-family: inherit; font-size: 1rem; outline: none;
-      transition: border-color .2s;
+      color: #fff; font-family: inherit; font-size: 1rem; outline: none; transition: border-color .2s;
     }
     input:focus { border-color: #0066ff; }
     .btn-login {
       width: 100%; padding: .9rem; background: #0066ff; color: #fff;
-      border: none; border-radius: 8px; font-family: inherit;
-      font-size: 1rem; font-weight: 700; cursor: pointer; transition: .2s;
-      margin-top: .5rem;
+      border: none; border-radius: 8px; font-family: inherit; font-size: 1rem;
+      font-weight: 700; cursor: pointer; transition: .2s; margin-top: .5rem;
     }
     .btn-login:hover { background: #0052cc; }
     .btn-login:disabled { opacity: .6; cursor: not-allowed; }
@@ -73,12 +66,12 @@
 
     <form onsubmit="doLogin(event)">
       <div class="form-group">
-        <label>Usuário</label>
-        <input type="text" id="usuario" placeholder="admin" required autocomplete="username" />
+        <label>Email</label>
+        <input type="email" id="adminEmail" placeholder="admin@jsautocar.com.br" required autocomplete="email" />
       </div>
       <div class="form-group">
         <label>Senha</label>
-        <input type="password" id="senha" placeholder="••••••••" required autocomplete="current-password" />
+        <input type="password" id="adminPassword" placeholder="••••••••" required autocomplete="current-password" />
       </div>
       <button type="submit" class="btn-login" id="btnLogin">Entrar</button>
     </form>
@@ -87,6 +80,16 @@
   </div>
 
   <script>
+    const API_BASE_URL =
+      window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3000'
+        : 'https://js-autocar-api.onrender.com';
+
+    // Redireciona se já logado
+    if (localStorage.getItem('admin_token')) {
+      window.location.href = '/admin/dashboard';
+    }
+
     async function doLogin(e) {
       e.preventDefault();
       const btn = document.getElementById('btnLogin');
@@ -95,16 +98,17 @@
       btn.disabled = true; btn.textContent = 'Entrando...';
 
       try {
-        const r = await fetch('/api/admin/login', {
+        const r = await fetch(`${API_BASE_URL}/api/admin/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            usuario: document.getElementById('usuario').value,
-            senha: document.getElementById('senha').value
+            email:    document.getElementById('adminEmail').value,
+            password: document.getElementById('adminPassword').value
           })
         });
         const data = await r.json();
         if (!r.ok) throw new Error(data.error);
+        localStorage.setItem('admin_token', data.token);
         window.location.href = '/admin/dashboard';
       } catch (ex) {
         err.textContent = ex.message || 'Erro ao fazer login.';

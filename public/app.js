@@ -1,9 +1,14 @@
-// ─── STATE ───────────────────────────────────────────────────────────────────
+// ─── API BASE URL ─────────────────────────────────────────────────────────────
+const API_BASE_URL =
+  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000'
+    : 'https://js-autocar-api.onrender.com';
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
 const state = {
   servicos: [],
   selectedServicos: [],
-  calYear: 0,
-  calMonth: 0,
+  calYear: 0, calMonth: 0,
   availableDays: [],
   selectedDate: null,
   availableSlots: [],
@@ -11,10 +16,14 @@ const state = {
   config: {}
 };
 
-// ─── UTILS ───────────────────────────────────────────────────────────────────
+// ─── UTILS ────────────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
+
 const api = async (url, opts = {}) => {
-  const r = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...opts });
+  const r = await fetch(`${API_BASE_URL}${url}`, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts
+  });
   const data = await r.json();
   if (!r.ok) throw new Error(data.error || 'Erro desconhecido');
   return data;
@@ -22,7 +31,7 @@ const api = async (url, opts = {}) => {
 
 function showToast(msg, type = 'success', duration = 4000) {
   const ct = $('toastContainer');
-  const t = document.createElement('div');
+  const t  = document.createElement('div');
   t.className = `toast ${type}`;
   t.innerHTML = `<span>${type === 'success' ? '✓' : type === 'error' ? '✗' : '!'}</span><span>${msg}</span>`;
   ct.appendChild(t);
@@ -31,8 +40,7 @@ function showToast(msg, type = 'success', duration = 4000) {
 
 function formatDate(dateStr) {
   const [y, m, d] = dateStr.split('-').map(Number);
-  const dt = new Date(y, m - 1, d);
-  return dt.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  return new Date(y, m - 1, d).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 function formatMoney(v) {
@@ -52,45 +60,65 @@ function phoneMask(v) {
   return v.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
 }
 
+function formatPhone(digits) {
+  const d = String(digits).replace(/\D/g, '');
+  if (d.length === 13) return `+${d.slice(0,2)} (${d.slice(2,4)}) ${d.slice(4,9)}-${d.slice(9)}`;
+  if (d.length === 11) return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
+  if (d.length === 10) return `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`;
+  return digits;
+}
+
 function setLoading(btn, loading) {
   if (loading) { btn.classList.add('loading'); btn.disabled = true; }
   else { btn.classList.remove('loading'); btn.disabled = false; }
 }
 
-// ─── PAGES ───────────────────────────────────────────────────────────────────
+// ─── PAGES ────────────────────────────────────────────────────────────────────
 function showPage(id) {
   ['pageHome','pageServicos','pageCalendario','pageFormulario','pageSuccess']
-    .forEach(p => { const el = $(p); if (el) el.style.display = p === id ? '' : 'none'; el && el.classList.toggle('page-hidden', p !== id); });
+    .forEach(p => {
+      const el = $(p);
+      if (el) { el.style.display = p === id ? '' : 'none'; el.classList.toggle('page-hidden', p !== id); }
+    });
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function voltarHome() { showPage('pageHome'); }
-function voltarServicos() { showPage('pageServicos'); }
-function voltarCalendario() { showPage('pageCalendario'); }
+function voltarHome()      { showPage('pageHome'); }
+function voltarServicos()  { showPage('pageServicos'); }
+function voltarCalendario(){ showPage('pageCalendario'); }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 async function init() {
   await loadConfig();
   await loadServicos();
   await loadAvaliacoes();
+  await loadGaleria();
 
   const tel = $('fTelefone');
   if (tel) tel.addEventListener('input', e => { e.target.value = phoneMask(e.target.value); });
 
   const now = new Date();
-  state.calYear = now.getFullYear();
+  state.calYear  = now.getFullYear();
   state.calMonth = now.getMonth();
+
+  // Formulário de contato
+  const contactForm = $('contactForm');
+  if (contactForm) contactForm.addEventListener('submit', enviarMensagem);
 }
 
 async function loadConfig() {
   try {
-    const cfg = await api('/api/config-publica');
+    const cfg = await api('/api/settings/public');
     state.config = cfg;
     const wa = cfg.whatsapp_numero || '';
     if ($('whatsappText')) $('whatsappText').textContent = wa ? formatPhone(wa) : '(47) 9999-9999';
     if ($('enderecoText')) $('enderecoText').textContent = cfg.endereco || 'Endereço não configurado';
-    if ($('footerAddr')) $('footerAddr').textContent = cfg.endereco || '-';
+    if ($('footerAddr'))   $('footerAddr').textContent   = cfg.endereco || '-';
     if ($('footerHorario')) $('footerHorario').textContent = cfg.horario_funcionamento || '';
+    if ($('footerInstagram') && cfg.instagram) {
+      $('footerInstagram').textContent = cfg.instagram;
+      $('footerInstagram').href = `https://instagram.com/${cfg.instagram.replace('@','')}`;
+    }
     if ($('footerWa')) {
       $('footerWa').href = `https://wa.me/${wa}`;
       $('footerWa').textContent = 'Falar no WhatsApp';
@@ -99,20 +127,29 @@ async function loadConfig() {
       $('headerWhatsapp').onclick = () => wa && window.open(`https://wa.me/${wa}`, '_blank');
       $('headerWhatsapp').style.cursor = wa ? 'pointer' : '';
     }
-  } catch (e) { console.warn('Config não carregada:', e.message); }
-}
+    // Google Maps embed
+    if ($('mapsFrame') && cfg.maps_url) {
+      $('mapsFrame').src = cfg.maps_url;
+      $('mapsSection') && ($('mapsSection').style.display = '');
+    }
+    // WhatsApp do site
+    const waLinks = document.querySelectorAll('.wa-link');
+    waLinks.forEach(el => { if (wa) el.href = `https://wa.me/${wa}`; });
 
-function formatPhone(digits) {
-  const d = String(digits).replace(/\D/g, '');
-  if (d.length === 13) return `+${d.slice(0,2)} (${d.slice(2,4)}) ${d.slice(4,9)}-${d.slice(9)}`;
-  if (d.length === 11) return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
-  return digits;
+    // Seção de contato
+    if ($('enderecoContato')) $('enderecoContato').textContent = cfg.endereco || 'A confirmar';
+    if ($('horarioContato'))  $('horarioContato').textContent  = cfg.horario_funcionamento || 'A confirmar';
+
+    // Mascara telefone no formulário de contato
+    const ctTel = $('contactTel');
+    if (ctTel) ctTel.addEventListener('input', ev => { ev.target.value = phoneMask(ev.target.value); });
+  } catch (e) { console.warn('Config não carregada:', e.message); }
 }
 
 // ─── SERVICES ─────────────────────────────────────────────────────────────────
 async function loadServicos() {
   try {
-    state.servicos = await api('/api/servicos');
+    state.servicos = await api('/api/services');
     renderServicosGrid();
     renderServicosSelect();
   } catch (e) {
@@ -122,11 +159,10 @@ async function loadServicos() {
 
 function serviceVisual(nome) {
   const n = (nome || '').toLowerCase();
-  if (n.includes('pesada'))               return { grad: 'grad-wash',      icon: '🚿', tag: 'Lavagem' };
-  if (n.includes('detalh'))               return { grad: 'grad-detail',    icon: '🔍', tag: 'Detalhamento' };
-  if (n.includes('polim') || n.includes('farol') || n.includes('faról'))
-                                          return { grad: 'grad-headlight', icon: '💡', tag: 'Polimento' };
-  if (n.includes('encer'))                return { grad: 'grad-wax',       icon: '✨', tag: 'Enceramento' };
+  if (n.includes('pesada'))                  return { grad: 'grad-wash',       icon: '🚿', tag: 'Lavagem' };
+  if (n.includes('detalh'))                  return { grad: 'grad-detail',     icon: '🔍', tag: 'Detalhamento' };
+  if (n.includes('polim') || n.includes('farol')) return { grad: 'grad-headlight', icon: '💡', tag: 'Polimento' };
+  if (n.includes('encer'))                   return { grad: 'grad-wax',        icon: '✨', tag: 'Enceramento' };
   if (n.includes('leva') || n.includes('traz')) return { grad: 'grad-delivery', icon: '🚗', tag: 'Leva e Traz' };
   return { grad: 'grad-default', icon: '🔧', tag: 'Serviço' };
 }
@@ -135,19 +171,19 @@ function renderServicosGrid() {
   const grid = $('servicesGrid');
   if (!state.servicos.length) { grid.innerHTML = '<p style="text-align:center;color:#666">Nenhum serviço disponível.</p>'; return; }
   grid.innerHTML = state.servicos.map(s => {
-    const v = serviceVisual(s.nome);
-    const imgHtml = s.imagem_path
-      ? `<img src="${s.imagem_path}" alt="${s.nome}" loading="lazy" style="width:100%;height:100%;object-fit:cover" />`
+    const v = serviceVisual(s.name);
+    const imgHtml = s.image_url
+      ? `<img src="${s.image_url}" alt="${s.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover" />`
       : `<div class="svc-grad ${v.grad}"><span class="svc-icon">${v.icon}</span><span class="svc-tag">${v.tag}</span></div>`;
     return `
     <div class="service-card">
       <div class="service-img">${imgHtml}</div>
       <div class="service-body">
-        <div class="service-name">${s.nome}</div>
-        <div class="service-desc">${s.descricao || ''}</div>
+        <div class="service-name">${s.name}</div>
+        <div class="service-desc">${s.description || ''}</div>
         <div class="service-meta">
-          ${s.preco ? `<div class="service-price">${formatMoney(s.preco)}</div>` : ''}
-          <div class="service-duration">⏱ ${formatDuration(s.duracao_minutos)}</div>
+          ${s.price ? `<div class="service-price">${formatMoney(s.price)}</div>` : ''}
+          <div class="service-duration">⏱ ${formatDuration(s.duration_minutes)}</div>
         </div>
         <button class="btn btn-primary service-btn" onclick="escolherServico(${s.id})">
           Escolher este serviço
@@ -161,9 +197,9 @@ function renderServicosSelect() {
   const grid = $('servicesSelectGrid');
   if (!state.servicos.length) { grid.innerHTML = '<p style="color:rgba(255,255,255,.5)">Nenhum serviço disponível.</p>'; return; }
   grid.innerHTML = state.servicos.map(s => {
-    const v = serviceVisual(s.nome);
-    const thumbHtml = s.imagem_path
-      ? `<img src="${s.imagem_path}" alt="${s.nome}" style="width:100%;height:100%;object-fit:cover" />`
+    const v = serviceVisual(s.name);
+    const thumbHtml = s.image_url
+      ? `<img src="${s.image_url}" alt="${s.name}" style="width:100%;height:100%;object-fit:cover" />`
       : `<div class="svc-grad ${v.grad}" style="font-size:1.6rem">${v.icon}</div>`;
     return `
     <div class="service-select-item" id="ssi-${s.id}" onclick="toggleServico(${s.id})">
@@ -171,11 +207,11 @@ function renderServicosSelect() {
       <div class="ssi-right">
         <div class="ssi-check"></div>
         <div class="ssi-content">
-          <div class="ssi-name">${s.nome}</div>
-          <div class="ssi-desc">${(s.descricao || '').slice(0, 80)}${s.descricao?.length > 80 ? '…' : ''}</div>
+          <div class="ssi-name">${s.name}</div>
+          <div class="ssi-desc">${(s.description || '').slice(0,80)}${(s.description || '').length > 80 ? '…' : ''}</div>
           <div class="ssi-meta">
-            ${s.preco ? `<div class="ssi-price">${formatMoney(s.preco)}</div>` : ''}
-            <div class="ssi-dur">⏱ ${formatDuration(s.duracao_minutos)}</div>
+            ${s.price ? `<div class="ssi-price">${formatMoney(s.price)}</div>` : ''}
+            <div class="ssi-dur">⏱ ${formatDuration(s.duration_minutes)}</div>
           </div>
         </div>
       </div>
@@ -201,17 +237,15 @@ function updateSelectedUI() {
     const el = $(`ssi-${s.id}`);
     if (el) el.classList.toggle('selected', state.selectedServicos.includes(s.id));
   });
-
   const sel = state.servicos.filter(s => state.selectedServicos.includes(s.id));
   const summary = $('selectedSummary');
-  const btn = $('btnIrCalendario');
-
+  const btn     = $('btnIrCalendario');
   if (sel.length) {
     summary.style.display = '';
-    $('selectedList').innerHTML = sel.map(s => `<span class="selected-tag">${s.nome}</span>`).join('');
-    const total = sel.reduce((a, s) => a + (s.preco || 0), 0);
-    const dur = sel.reduce((a, s) => a + s.duracao_minutos, 0);
-    $('selectedTotal').textContent = total ? formatMoney(total) : 'Consultar';
+    $('selectedList').innerHTML = sel.map(s => `<span class="selected-tag">${s.name}</span>`).join('');
+    const total = sel.reduce((a, s) => a + (parseFloat(s.price) || 0), 0);
+    const dur   = sel.reduce((a, s) => a + s.duration_minutes, 0);
+    $('selectedTotal').textContent    = total ? formatMoney(total) : 'Consultar';
     $('selectedDuration').textContent = `  ·  ${formatDuration(dur)}`;
     btn.disabled = false;
   } else {
@@ -235,47 +269,41 @@ async function irParaCalendario() {
 
 async function renderCalendar() {
   const label = $('calMonthLabel');
-  const year = state.calYear, month = state.calMonth;
-
+  const { calYear: year, calMonth: month } = state;
   label.textContent = new Date(year, month).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-
-  $('horariosSection').style.display = 'none';
-  $('calendarActions').style.display = 'none';
-  state.selectedDate = null;
-  state.selectedHora = null;
-
+  $('horariosSection').style.display  = 'none';
+  $('calendarActions').style.display  = 'none';
+  state.selectedDate = null; state.selectedHora = null;
   try {
-    state.availableDays = await api(`/api/horarios/mes?ano=${year}&mes=${month + 1}`);
-  } catch (e) { state.availableDays = []; }
-
+    state.availableDays = await api(`/api/timeslots/month?year=${year}&month=${month + 1}`);
+  } catch { state.availableDays = []; }
   buildCalendarGrid(year, month);
 }
 
 function buildCalendarGrid(year, month) {
-  const grid = $('calendarGrid');
-  const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  const today = new Date(); today.setHours(0,0,0,0);
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const grid    = $('calendarGrid');
+  const days    = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const today   = new Date(); today.setHours(0,0,0,0);
+  const firstDay     = new Date(year, month, 1).getDay();
+  const daysInMonth  = new Date(year, month + 1, 0).getDate();
 
   let html = days.map(d => `<div class="cal-header">${d}</div>`).join('');
-
   for (let i = 0; i < firstDay; i++) html += `<div class="cal-day empty"></div>`;
 
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const dt = new Date(year, month, d);
-    const isPast = dt < today;
+    const dt      = new Date(year, month, d);
+    const isPast  = dt < today;
     const isToday = dt.toDateString() === today.toDateString();
     const isAvail = state.availableDays.includes(dateStr);
-    const isSel = dateStr === state.selectedDate;
+    const isSel   = dateStr === state.selectedDate;
 
     let cls = 'cal-day';
-    if (isPast) cls += ' past';
+    if (isPast)  cls += ' past';
     else if (isAvail) cls += ' available';
     else cls += ' unavailable';
     if (isToday) cls += ' today';
-    if (isSel) cls += ' selected';
+    if (isSel)   cls += ' selected';
 
     const click = isAvail && !isPast ? `onclick="selectDate('${dateStr}')"` : '';
     html += `<div class="${cls}" ${click}>${d}</div>`;
@@ -284,32 +312,29 @@ function buildCalendarGrid(year, month) {
 }
 
 async function selectDate(dateStr) {
-  state.selectedDate = dateStr;
-  state.selectedHora = null;
+  state.selectedDate = dateStr; state.selectedHora = null;
   $('calendarActions').style.display = 'none';
   buildCalendarGrid(state.calYear, state.calMonth);
 
   const horariosSection = $('horariosSection');
-  const horariosGrid = $('horariosGrid');
-  const horariosTitle = $('horariosTitle');
-
-  horariosTitle.textContent = `Horários disponíveis — ${formatDate(dateStr)}`;
+  const horariosGrid    = $('horariosGrid');
+  $('horariosTitle').textContent = `Horários disponíveis — ${formatDate(dateStr)}`;
   horariosGrid.innerHTML = '<span style="color:#666">Carregando horários...</span>';
   horariosSection.style.display = '';
 
   try {
-    state.availableSlots = await api(`/api/horarios?data=${dateStr}`);
+    state.availableSlots = await api(`/api/timeslots?date=${dateStr}`);
     if (!state.availableSlots.length) {
       horariosGrid.innerHTML = '<span style="color:#666">Nenhum horário disponível neste dia.</span>';
       return;
     }
     horariosGrid.innerHTML = state.availableSlots.map(h => {
-      const cls = h.reservado ? 'horario-btn indisponivel' : 'horario-btn disponivel';
-      const click = h.reservado ? '' : `onclick="selectHorario('${h.hora}')"`;
-      const label = h.reservado ? `${h.hora} — Indisponível` : h.hora;
+      const cls   = h.reservado ? 'horario-btn indisponivel' : 'horario-btn disponivel';
+      const click = h.reservado ? '' : `onclick="selectHorario('${h.time}')"`;
+      const label = h.reservado ? `${h.time} — Indisponível` : h.time;
       return `<button class="${cls}" ${click}>${label}</button>`;
     }).join('');
-  } catch (e) {
+  } catch {
     horariosGrid.innerHTML = '<span style="color:red">Erro ao carregar horários.</span>';
   }
 }
@@ -337,7 +362,7 @@ $('btnMesProximo') && ($('btnMesProximo').onclick = async () => {
   await renderCalendar();
 });
 
-// ─── FORM / CONFIRMATION ──────────────────────────────────────────────────────
+// ─── FORM / CONFIRMAÇÃO ───────────────────────────────────────────────────────
 function irParaConfirmacao() {
   if (!state.selectedDate || !state.selectedHora) { showToast('Selecione data e horário.', 'warning'); return; }
   buildResumo();
@@ -345,13 +370,12 @@ function irParaConfirmacao() {
 }
 
 function buildResumo() {
-  const sel = state.servicos.filter(s => state.selectedServicos.includes(s.id));
-  const total = sel.reduce((a, s) => a + (s.preco || 0), 0);
-  const dur = sel.reduce((a, s) => a + s.duracao_minutos, 0);
-
+  const sel   = state.servicos.filter(s => state.selectedServicos.includes(s.id));
+  const total = sel.reduce((a, s) => a + (parseFloat(s.price) || 0), 0);
+  const dur   = sel.reduce((a, s) => a + s.duration_minutes, 0);
   $('formResumo').innerHTML = `
     <h3>Resumo do agendamento</h3>
-    <div class="resumo-row"><span class="resumo-label">Serviço(s)</span><span class="resumo-val">${sel.map(s=>s.nome).join(', ')}</span></div>
+    <div class="resumo-row"><span class="resumo-label">Serviço(s)</span><span class="resumo-val">${sel.map(s=>s.name).join(', ')}</span></div>
     <div class="resumo-row"><span class="resumo-label">Data</span><span class="resumo-val">${formatDate(state.selectedDate)}</span></div>
     <div class="resumo-row"><span class="resumo-label">Horário</span><span class="resumo-val">${state.selectedHora}</span></div>
     <div class="resumo-row"><span class="resumo-label">Duração estimada</span><span class="resumo-val">${formatDuration(dur)}</span></div>
@@ -364,11 +388,11 @@ async function confirmarAgendamento(e) {
   const btn = $('btnConfirmar');
   setLoading(btn, true);
 
-  const nome = $('fNome').value.trim();
+  const nome     = $('fNome').value.trim();
   const telefone = $('fTelefone').value.replace(/\D/g,'');
-  const carro = $('fCarro').value.trim();
-  const placa = $('fPlaca').value.trim();
-  const obs = $('fObs').value.trim();
+  const carro    = $('fCarro').value.trim();
+  const placa    = $('fPlaca').value.trim();
+  const obs      = $('fObs').value.trim();
 
   if (telefone.length < 10) {
     showToast('Informe um telefone válido.', 'error');
@@ -377,35 +401,35 @@ async function confirmarAgendamento(e) {
   }
 
   try {
-    const result = await api('/api/agendamentos', {
+    const result = await api('/api/appointments', {
       method: 'POST',
       body: JSON.stringify({
-        cliente_nome: nome,
-        cliente_telefone: telefone,
-        carro_modelo: carro,
-        carro_placa: placa,
-        observacoes: obs,
-        data: state.selectedDate,
-        hora: state.selectedHora,
-        servicos_ids: state.selectedServicos
+        customer_name:  nome,
+        customer_phone: telefone,
+        car_model:      carro,
+        car_plate:      placa,
+        notes:          obs,
+        date:           state.selectedDate,
+        time:           state.selectedHora,
+        service_ids:    state.selectedServicos
       })
     });
 
-    const sel = state.servicos.filter(s => state.selectedServicos.includes(s.id));
-    const total = sel.reduce((a, s) => a + (s.preco || 0), 0);
-    const dur = sel.reduce((a, s) => a + s.duracao_minutos, 0);
+    const sel   = state.servicos.filter(s => state.selectedServicos.includes(s.id));
+    const total = sel.reduce((a, s) => a + (parseFloat(s.price) || 0), 0);
+    const dur   = sel.reduce((a, s) => a + s.duration_minutes, 0);
 
     const msg = encodeURIComponent(
       `Olá! Acabei de agendar um serviço na JS AutoCar:\n\n` +
       `👤 Nome: ${nome}\n` +
       `📱 Telefone: ${formatPhone(telefone)}\n` +
       `🚗 Carro: ${carro}${placa ? ' - ' + placa : ''}\n` +
-      `🔧 Serviço(s): ${sel.map(s=>s.nome).join(', ')}\n` +
+      `🔧 Serviço(s): ${sel.map(s=>s.name).join(', ')}\n` +
       `📅 Data: ${formatDate(state.selectedDate)} às ${state.selectedHora}\n` +
       `⏱ Duração estimada: ${formatDuration(dur)}\n` +
       `💰 Valor: ${total ? formatMoney(total) : 'A consultar'}\n` +
       `${obs ? `📝 Obs: ${obs}` : ''}\n\n` +
-      `ID do agendamento: #${result.agendamento_id}`
+      `ID do agendamento: #${result.appointment_id}`
     );
 
     const waNum = state.config.whatsapp_numero || '5547999999999';
@@ -421,21 +445,66 @@ async function confirmarAgendamento(e) {
   }
 }
 
-// ─── REVIEWS ──────────────────────────────────────────────────────────────────
+// ─── AVALIAÇÕES ────────────────────────────────────────────────────────────────
 async function loadAvaliacoes() {
+  // Mantido para compatibilidade com avaliar.html
   try {
-    const avs = await api('/api/avaliacoes');
+    const avs  = await api('/api/timeslots/month?year=2099&month=01').catch(() => []);
     const grid = $('reviewsGrid');
-    if (!avs.length) { grid.innerHTML = '<p style="text-align:center;color:#666">Seja o primeiro a avaliar!</p>'; return; }
-    grid.innerHTML = avs.map(a => `
+    if (!grid) return;
+    // Avaliações ficam em localStorage por enquanto (exibição apenas)
+    const stored = JSON.parse(localStorage.getItem('reviews') || '[]');
+    if (!stored.length) {
+      grid.innerHTML = '<p style="text-align:center;color:#666">Seja o primeiro a avaliar!</p>';
+      return;
+    }
+    grid.innerHTML = stored.map(a => `
       <div class="review-card">
         <div class="review-stars">${'★'.repeat(a.nota)}${'☆'.repeat(5-a.nota)}</div>
         <div class="review-text">"${a.comentario || 'Ótimo serviço!'}"</div>
         <div class="review-author">— ${a.nome}</div>
       </div>
     `).join('');
-  } catch (e) {
-    if ($('reviewsGrid')) $('reviewsGrid').innerHTML = '';
+  } catch { if ($('reviewsGrid')) $('reviewsGrid').innerHTML = ''; }
+}
+
+// ─── GALERIA ──────────────────────────────────────────────────────────────────
+async function loadGaleria() {
+  const grid = $('galeriaGrid');
+  if (!grid) return;
+  try {
+    const items = await api('/api/gallery');
+    if (!items.length) { grid.closest('.section') && (grid.closest('.section').style.display = 'none'); return; }
+    grid.innerHTML = items.map(g => `
+      <div class="gallery-item">
+        <img src="${g.image_url}" alt="${g.title || 'Galeria JS AutoCar'}" loading="lazy" />
+        ${g.title ? `<div class="gallery-caption">${g.title}</div>` : ''}
+      </div>
+    `).join('');
+  } catch { grid.closest('.section') && (grid.closest('.section').style.display = 'none'); }
+}
+
+// ─── CONTATO ──────────────────────────────────────────────────────────────────
+async function enviarMensagem(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  setLoading(btn, true);
+
+  try {
+    await api('/api/messages', {
+      method: 'POST',
+      body: JSON.stringify({
+        customer_name:  $('contactNome').value.trim(),
+        customer_phone: $('contactTel').value.replace(/\D/g,''),
+        content:        $('contactMsg').value.trim()
+      })
+    });
+    showToast('Mensagem enviada! Entraremos em contato em breve.', 'success', 5000);
+    e.target.reset();
+  } catch (err) {
+    showToast(err.message || 'Erro ao enviar mensagem.', 'error');
+  } finally {
+    setLoading(btn, false);
   }
 }
 

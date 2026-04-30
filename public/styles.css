@@ -458,6 +458,59 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
   padding: 1.25rem 0; text-align: center; font-size: .8rem;
 }
 
+/* ─── GALLERY ─── */
+.gallery-grid {
+  display: grid; gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+.gallery-item {
+  position: relative; border-radius: var(--radius); overflow: hidden;
+  background: var(--gray-light); aspect-ratio: 4/3;
+}
+.gallery-item img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform .3s;
+}
+.gallery-item:hover img { transform: scale(1.04); }
+.gallery-caption {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: .5rem .75rem; background: rgba(0,0,0,.6);
+  color: #fff; font-size: .8rem; font-weight: 600;
+}
+
+/* ─── CONTACT ─── */
+.contact-wrap {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;
+}
+.contact-form { display: flex; flex-direction: column; gap: 1rem; }
+.form-group-light { display: flex; flex-direction: column; gap: .4rem; }
+.form-group-light label { font-size: .85rem; font-weight: 600; color: var(--dark); }
+.form-group-light input, .form-group-light textarea {
+  padding: .8rem 1rem; border: 1.5px solid var(--gray-border);
+  border-radius: var(--radius-sm); outline: none; transition: border-color .2s;
+  font-family: inherit; font-size: 1rem; background: #fff;
+}
+.form-group-light input:focus, .form-group-light textarea:focus { border-color: var(--blue); }
+.form-group-light textarea { resize: vertical; min-height: 100px; }
+
+.contact-info { display: flex; flex-direction: column; gap: 1.25rem; }
+.contact-card {
+  display: flex; align-items: flex-start; gap: 1rem;
+  background: var(--gray-light); border-radius: var(--radius); padding: 1.25rem;
+}
+.cc-icon { font-size: 1.5rem; flex-shrink: 0; }
+.cc-title { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--gray); margin-bottom: .3rem; }
+.cc-value { font-size: .95rem; color: var(--dark); font-weight: 500; }
+a.cc-value { color: var(--green-wa); font-weight: 700; }
+a.cc-value:hover { text-decoration: underline; }
+
+/* ─── MAPS ─── */
+.maps-wrapper { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+
+/* ─── FOOTER INSTAGRAM ─── */
+.footer-insta { color: #e1306c !important; font-weight: 600; }
+.footer-insta:empty { display: none; }
+
 /* ─── RESPONSIVE ─── */
 @media (max-width: 768px) {
   .header-info { display: none; }
