@@ -24,9 +24,15 @@ router.get('/', async (req, res) => {
     let query = supabaseAdmin.from('services').select('*').order('id');
     if (!all) query = query.eq('is_active', true);
     const { data, error } = await query;
-    if (error) throw error;
-    res.json(data);
-  } catch (e) { console.error(e); res.status(500).json({ error: 'Erro interno' }); }
+    if (error) {
+      console.error('[services] erro ao listar serviços:', error.message, error.code, error.details);
+      throw error;
+    }
+    res.json({ success: true, services: data || [] });
+  } catch (e) {
+    console.error('[services] erro interno:', e.message);
+    res.status(500).json({ error: 'Erro interno' });
+  }
 });
 
 // POST /api/services  — admin
