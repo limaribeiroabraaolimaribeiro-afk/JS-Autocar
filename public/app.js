@@ -472,14 +472,19 @@ async function loadGaleria() {
   if (!grid) return;
   try {
     const items = await api('/api/gallery');
-    if (!items.length) { grid.closest('.section') && (grid.closest('.section').style.display = 'none'); return; }
+    if (!items.length) {
+      grid.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);padding:2rem 0">Galeria em breve...</p>';
+      return;
+    }
     grid.innerHTML = items.map(g => `
       <div class="gallery-item">
         <img src="${g.image_url}" alt="${g.title || 'Galeria JS AutoCar'}" loading="lazy" />
         ${g.title ? `<div class="gallery-caption">${g.title}</div>` : ''}
       </div>
     `).join('');
-  } catch { grid.closest('.section') && (grid.closest('.section').style.display = 'none'); }
+  } catch {
+    grid.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);padding:2rem 0">Galeria em breve...</p>';
+  }
 }
 
 // ─── CONTATO ──────────────────────────────────────────────────────────────────

@@ -644,6 +644,21 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
 .success-container p  { color: rgba(255,255,255,.48); margin-bottom: 1rem; }
 .success-note a { color: var(--blue-neon); font-weight: 600; }
 
+/* ─── SCROLL ANCHOR OFFSET (compensa o header sticky) ─── */
+#servicos, #avaliacoes-section, #galeria, #contato, #localizacao {
+  scroll-margin-top: 92px;
+}
+@media (max-width: 768px) {
+  #servicos, #avaliacoes-section, #galeria, #contato, #localizacao {
+    scroll-margin-top: 74px;
+  }
+}
+@media (max-width: 480px) {
+  #servicos, #avaliacoes-section, #galeria, #contato, #localizacao {
+    scroll-margin-top: 68px;
+  }
+}
+
 /* ─── GALLERY ─── */
 .gallery-grid {
   display: grid; gap: 1rem;
