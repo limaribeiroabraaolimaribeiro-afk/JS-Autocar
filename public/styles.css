@@ -540,6 +540,11 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
 .grad-delivery { background: linear-gradient(135deg, #060638 0%, #4a4ed4 100%); }
 .grad-default  { background: linear-gradient(135deg, #081020 0%, #182240 100%); }
 
+/* Imagem oculta antes do onload (hidden attribute) — esconde sem dependência de has-image */
+.service-img img[hidden],
+.ssi-thumb img[hidden] { display: none !important; }
+
+/* Quando a imagem carrega com sucesso, JS adiciona has-image ao pai */
 .service-img.has-image,
 .ssi-thumb.has-image {
   position: relative;
@@ -548,6 +553,7 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
 .ssi-thumb.has-image > .svc-grad {
   display: none;
 }
+/* No erro JS remove has-image e adiciona image-error; placeholder volta a aparecer */
 .service-img.image-error > .svc-grad,
 .ssi-thumb.image-error > .svc-grad {
   display: flex;
@@ -659,7 +665,7 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
 .resumo-val   { font-weight: 600; font-size: .9rem; text-align: right; max-width: 60%; color: var(--text-white); }
 
 .booking-form { display: flex; flex-direction: column; gap: 1rem; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; min-width: 0; width: 100%; }
 .form-group { display: flex; flex-direction: column; gap: .4rem; }
 .form-group label { font-size: .8rem; font-weight: 600; color: rgba(255,255,255,.52); }
 .form-group input, .form-group textarea {
@@ -877,19 +883,26 @@ a.cc-value:hover { text-decoration: underline; }
   .booking-header { flex-wrap: wrap; gap: 1rem; }
 
   /* forms */
-  .form-row { grid-template-columns: minmax(0, 1fr); width: 100%; max-width: 100%; }
+  .form-row { grid-template-columns: minmax(0, 1fr); width: 100%; max-width: 100%; min-width: 0; }
   .services-select-grid { grid-template-columns: 1fr; }
-  .contact-wrap { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+  .contact-wrap { grid-template-columns: minmax(0, 1fr); gap: 2rem; overflow: hidden; }
   .contact-form,
   .contact-info,
   .form-group-light,
-  .form-group-light input,
-  .form-group-light textarea,
   .contact-card {
     width: 100%;
     max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
-  .contact-form .btn { width: 100%; justify-content: center; }
+  .form-group-light input,
+  .form-group-light textarea {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  .contact-form .btn { width: 100%; max-width: 100%; justify-content: center; box-sizing: border-box; }
 
   /* cta */
   .cta-btns { flex-direction: column; align-items: stretch; }
@@ -1042,4 +1055,11 @@ a.cc-value:hover { text-decoration: underline; }
   .ssi-right { padding: .7rem; gap: .5rem; }
   .ssi-check { width: 20px; height: 20px; }
   .contact-card { padding: .85rem; }
+  .contact-wrap { gap: 1rem; }
+  .form-group-light input,
+  .form-group-light textarea {
+    padding: .75rem .85rem;
+    font-size: .95rem;
+  }
+  .contact-form .btn { padding: .75rem 1rem; font-size: .9rem; }
 }

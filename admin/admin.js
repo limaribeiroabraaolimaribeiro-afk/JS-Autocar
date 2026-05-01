@@ -148,8 +148,10 @@ async function checkNovos() {
   try {
     const { count } = await api('/api/appointments/unseen');
     const badge = $('badgeAgendamentos');
-    badge.textContent  = count;
+    badge.textContent   = count;
     badge.style.display = count > 0 ? '' : 'none';
+    const bnBadge = $('bnBadgeAgendamentos');
+    if (bnBadge) { bnBadge.textContent = count; bnBadge.style.display = count > 0 ? '' : 'none'; }
   } catch (_) {}
 }
 
@@ -160,6 +162,8 @@ function showTab(tab) {
     $(`tab-${t}`).style.display = t === tab ? '' : 'none';
     const ni = document.querySelector(`.nav-item[data-tab="${t}"]`);
     if (ni) ni.classList.toggle('active', t === tab);
+    const bi = document.querySelector(`.bottom-nav-item[data-tab="${t}"]`);
+    if (bi) bi.classList.toggle('active', t === tab);
   });
   S.currentTab = tab;
 
@@ -180,8 +184,18 @@ function showTab(tab) {
   closeSidebar();
 }
 
-function toggleSidebar() { $('sidebar').classList.toggle('open'); }
-function closeSidebar()  { if (window.innerWidth <= 900) $('sidebar').classList.remove('open'); }
+function toggleSidebar() {
+  $('sidebar').classList.toggle('open');
+  const bd = $('sidebarBackdrop');
+  if (bd) bd.classList.toggle('visible', $('sidebar').classList.contains('open'));
+}
+function closeSidebar() {
+  if (window.innerWidth <= 900) {
+    $('sidebar').classList.remove('open');
+    const bd = $('sidebarBackdrop');
+    if (bd) bd.classList.remove('visible');
+  }
+}
 
 async function markVisto() {
   try { await api('/api/appointments/mark-seen', { method: 'POST' }); $('badgeAgendamentos').style.display = 'none'; } catch (_) {}
@@ -242,14 +256,14 @@ function renderAgendamentosTable() {
     const nomes    = Array.isArray(service.names) ? service.names.join(', ') : '-';
     return `
       <tr>
-        <td>#${a.id}</td>
-        <td>${formatDate(a.scheduled_date)}<br><small style="color:#6b7280">${(a.scheduled_time||'').slice(0,5)}</small></td>
-        <td><div style="font-weight:600">${customer.name || '-'}</div><div style="font-size:.75rem">${telLink}</div></td>
-        <td>${vehicle.model || '-'}${vehicle.plate ? `<br><small style="color:#6b7280">${vehicle.plate}</small>` : ''}</td>
-        <td style="max-width:160px;white-space:normal;font-size:.8rem">${nomes}</td>
-        <td>${service.total_price ? formatMoney(service.total_price) : '-'}</td>
-        <td>${statusBadge(a.status)}</td>
-        <td>
+        <td data-label="#">#${a.id}</td>
+        <td data-label="Data/Hora">${formatDate(a.scheduled_date)}<br><small style="color:#6b7280">${(a.scheduled_time||'').slice(0,5)}</small></td>
+        <td data-label="Cliente"><div style="font-weight:600">${customer.name || '-'}</div><div style="font-size:.75rem">${telLink}</div></td>
+        <td data-label="Veículo">${vehicle.model || '-'}${vehicle.plate ? `<br><small style="color:#6b7280">${vehicle.plate}</small>` : ''}</td>
+        <td data-label="Serviço" style="max-width:160px;white-space:normal;font-size:.8rem">${nomes}</td>
+        <td data-label="Valor">${service.total_price ? formatMoney(service.total_price) : '-'}</td>
+        <td data-label="Status">${statusBadge(a.status)}</td>
+        <td data-label="Ações">
           <div class="action-btns">
             ${a.status === 'novo'         ? `<button class="btn-act btn-confirm" onclick="updateStatus(${a.id},'confirmado')">Confirmar</button>` : ''}
             ${a.status === 'confirmado'   ? `<button class="btn-act btn-done" onclick="updateStatus(${a.id},'em_andamento')">Iniciar</button>` : ''}
@@ -441,7 +455,7 @@ async function loadServicos() {
         : `<div class="svc-thumb-mini ${v.grad}">${v.icon}</div>`;
       return `
         <tr>
-          <td>
+          <td data-label="Serviço">
             <div class="service-img-cell">
               ${thumb}
               <div class="svc-name-block">
@@ -450,10 +464,10 @@ async function loadServicos() {
               </div>
             </div>
           </td>
-          <td>${s.price ? formatMoney(s.price) : '<span style="color:#6b7280">—</span>'}</td>
-          <td>${formatDur(s.duration_minutes)}</td>
-          <td><span class="badge ${s.is_active ? 'badge-confirmado' : 'badge-cancelado'}">${s.is_active ? 'Ativo' : 'Inativo'}</span></td>
-          <td>
+          <td data-label="Preço">${s.price ? formatMoney(s.price) : '<span style="color:#6b7280">—</span>'}</td>
+          <td data-label="Duração">${formatDur(s.duration_minutes)}</td>
+          <td data-label="Status"><span class="badge ${s.is_active ? 'badge-confirmado' : 'badge-cancelado'}">${s.is_active ? 'Ativo' : 'Inativo'}</span></td>
+          <td data-label="Ações">
             <div class="action-btns">
               <button class="btn-act btn-edit" onclick="editarServico(${s.id})">✏️ Editar</button>
               <button class="btn-act btn-delete" onclick="desativarServico(${s.id},${s.is_active})">${s.is_active ? '⊘ Desativar' : '✓ Ativar'}</button>
@@ -567,12 +581,12 @@ async function loadClientes() {
     }
     tbody.innerHTML = S.clientes.map(c => `
       <tr>
-        <td>#${c.id}</td>
-        <td style="font-weight:600">${c.name}</td>
-        <td><a href="https://wa.me/55${c.phone}" target="_blank" style="color:#34d399">${fmtTel(c.phone)}</a></td>
-        <td>${c.vehicle_model || '-'}</td>
-        <td>${c.vehicle_plate || '-'}</td>
-        <td style="font-size:.8rem;color:#6b7280">${new Date(c.created_at).toLocaleDateString('pt-BR')}</td>
+        <td data-label="#">#${c.id}</td>
+        <td data-label="Nome" style="font-weight:600">${c.name}</td>
+        <td data-label="Telefone"><a href="https://wa.me/55${c.phone}" target="_blank" style="color:#34d399">${fmtTel(c.phone)}</a></td>
+        <td data-label="Veículo">${c.vehicle_model || '-'}</td>
+        <td data-label="Placa">${c.vehicle_plate || '-'}</td>
+        <td data-label="Cadastro" style="font-size:.8rem;color:#6b7280">${new Date(c.created_at).toLocaleDateString('pt-BR')}</td>
       </tr>`).join('');
   } catch (e) {
     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#f87171;padding:2rem">Erro: ${e.message}</td></tr>`;
@@ -585,11 +599,13 @@ async function loadMensagens() {
   list.innerHTML = '<div style="text-align:center;color:#6b7280;padding:3rem">Carregando...</div>';
   try {
     S.mensagens = await api('/api/messages');
-    // Atualiza badge
+    // Atualiza badge sidebar + bottom nav
     const novas = S.mensagens.filter(m => m.status === 'novo').length;
     const badge = $('badgeMensagens');
-    badge.textContent  = novas;
+    badge.textContent   = novas;
     badge.style.display = novas > 0 ? '' : 'none';
+    const bnBadge = $('bnBadgeMensagens');
+    if (bnBadge) { bnBadge.textContent = novas; bnBadge.style.display = novas > 0 ? '' : 'none'; }
     renderMensagens();
   } catch (e) { list.innerHTML = `<div style="text-align:center;color:#f87171;padding:2rem">Erro: ${e.message}</div>`; }
 }

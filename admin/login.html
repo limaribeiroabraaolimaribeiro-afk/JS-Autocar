@@ -47,6 +47,20 @@
     }
     .back-link { display: block; text-align: center; margin-top: 1.5rem; font-size: .8rem; color: rgba(255,255,255,.4); }
     .back-link a { color: #1e90ff; text-decoration: none; }
+    @media (max-width: 480px) {
+      .login-wrap { padding: 2.25rem 1.75rem; }
+      .brand { margin-bottom: 2rem; }
+    }
+    @media (max-width: 380px) {
+      body { padding: .75rem; }
+      .login-wrap { padding: 1.85rem 1.35rem; border-radius: 14px; }
+      .brand-icon { width: 42px; height: 42px; font-size: 1.2rem; }
+      .brand-name { font-size: 1.2rem; }
+      h2 { font-size: 1.25rem; }
+      input { padding: .75rem .9rem; }
+      .btn-login { padding: .85rem; font-size: .95rem; }
+      .error-msg { font-size: .82rem; padding: .65rem .85rem; }
+    }
   </style>
 </head>
 <body>

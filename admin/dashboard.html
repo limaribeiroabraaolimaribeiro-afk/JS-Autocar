@@ -243,6 +243,45 @@
 <!-- TOAST -->
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- SIDEBAR BACKDROP (mobile) -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+<!-- BOTTOM NAV (mobile only) -->
+<nav class="bottom-nav" id="bottomNav" aria-label="Menu principal">
+  <div class="bottom-nav-items">
+    <button class="bottom-nav-item active" data-tab="agendamentos" onclick="showTab('agendamentos')">
+      <span class="bn-icon">📅</span>
+      <span class="bn-label">Agend.</span>
+      <span class="bn-badge" id="bnBadgeAgendamentos" style="display:none">0</span>
+    </button>
+    <button class="bottom-nav-item" data-tab="horarios" onclick="showTab('horarios')">
+      <span class="bn-icon">🕐</span>
+      <span class="bn-label">Horários</span>
+    </button>
+    <button class="bottom-nav-item" data-tab="servicos" onclick="showTab('servicos')">
+      <span class="bn-icon">🔧</span>
+      <span class="bn-label">Serviços</span>
+    </button>
+    <button class="bottom-nav-item" data-tab="clientes" onclick="showTab('clientes')">
+      <span class="bn-icon">👤</span>
+      <span class="bn-label">Clientes</span>
+    </button>
+    <button class="bottom-nav-item" data-tab="mensagens" onclick="showTab('mensagens')">
+      <span class="bn-icon">💬</span>
+      <span class="bn-label">Msgs</span>
+      <span class="bn-badge" id="bnBadgeMensagens" style="display:none">0</span>
+    </button>
+    <button class="bottom-nav-item" data-tab="galeria" onclick="showTab('galeria')">
+      <span class="bn-icon">🖼️</span>
+      <span class="bn-label">Galeria</span>
+    </button>
+    <button class="bottom-nav-item" data-tab="configuracoes" onclick="showTab('configuracoes')">
+      <span class="bn-icon">⚙️</span>
+      <span class="bn-label">Config</span>
+    </button>
+  </div>
+</nav>
+
 <!-- ─── MODAL: SERVIÇO ─── -->
 <div class="modal-overlay" id="servicoModal">
   <div class="modal">

@@ -76,11 +76,15 @@ function setLoading(btn, loading) {
 
 function forceTopOnInitialLoad() {
   if (window.location.hash) return;
+  // Bypass smooth-scroll CSS to ensure instant jump on mobile
+  document.documentElement.style.scrollBehavior = 'auto';
   window.scrollTo(0, 0);
-  requestAnimationFrame(() => window.scrollTo(0, 0));
-  setTimeout(() => {
-    if (!window.location.hash) window.scrollTo(0, 0);
-  }, 150);
+  requestAnimationFrame(() => {
+    window.scrollTo(0, 0);
+    requestAnimationFrame(() => {
+      document.documentElement.style.scrollBehavior = '';
+    });
+  });
 }
 
 function escapeHtml(value) {
@@ -123,15 +127,30 @@ function serviceImageHtml(service, visual, compact = false) {
   const placeholder = servicePlaceholder(visual, compact);
   if (!imageUrl) return placeholder;
 
+  // Imagem começa oculta (hidden) para evitar flash do ícone quebrado.
+  // onload: mostra a imagem e ativa has-image no pai.
+  // onerror: mantém oculta e mostra placeholder.
   return `
     ${placeholder}
-    <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(service.name)}" loading="lazy" onerror="handleServiceImageError(this)" />
+    <img src="${escapeHtml(imageUrl)}" alt="" hidden loading="lazy"
+         onload="handleServiceImageLoad(this)"
+         onerror="handleServiceImageError(this)" />
   `;
 }
 
+function handleServiceImageLoad(img) {
+  const parent = img && img.parentElement;
+  if (parent) parent.classList.add('has-image');
+  if (img) img.hidden = false;
+}
+window.handleServiceImageLoad = handleServiceImageLoad;
+
 function handleServiceImageError(img) {
   const parent = img && img.parentElement;
-  if (parent) parent.classList.add('image-error');
+  if (parent) {
+    parent.classList.remove('has-image');
+    parent.classList.add('image-error');
+  }
   if (img) {
     img.hidden = true;
     img.removeAttribute('src');
@@ -171,6 +190,13 @@ async function init() {
   // Formulário de contato
   const contactForm = $('contactForm');
   if (contactForm) contactForm.addEventListener('submit', enviarMensagem);
+
+  // Força topo após todo o conteúdo carregar (evita que API responses movam a página no mobile)
+  if (!window.location.hash) {
+    document.documentElement.style.scrollBehavior = 'auto';
+    window.scrollTo(0, 0);
+    setTimeout(() => { document.documentElement.style.scrollBehavior = ''; }, 100);
+  }
 }
 
 async function loadConfig() {
@@ -240,11 +266,10 @@ function renderServicosGrid() {
   if (!state.servicos.length) { grid.innerHTML = '<p style="text-align:center;color:#666">Nenhum serviço disponível.</p>'; return; }
   grid.innerHTML = state.servicos.map(s => {
     const v = serviceVisual(s.name);
-    const imageUrl = getServiceImageUrl(s);
     const imgHtml = serviceImageHtml(s, v);
     return `
     <div class="service-card">
-      <div class="service-img ${imageUrl ? 'has-image' : ''}">${imgHtml}</div>
+      <div class="service-img">${imgHtml}</div>
       <div class="service-body">
         <div class="service-name">${escapeHtml(s.name)}</div>
         <div class="service-desc">${escapeHtml(s.description || '')}</div>
@@ -265,11 +290,10 @@ function renderServicosSelect() {
   if (!state.servicos.length) { grid.innerHTML = '<p style="color:rgba(255,255,255,.5)">Nenhum serviço disponível.</p>'; return; }
   grid.innerHTML = state.servicos.map(s => {
     const v = serviceVisual(s.name);
-    const imageUrl = getServiceImageUrl(s);
     const thumbHtml = serviceImageHtml(s, v, true);
     return `
     <div class="service-select-item" id="ssi-${s.id}" onclick="toggleServico(${s.id})">
-      <div class="ssi-thumb ${imageUrl ? 'has-image' : ''}">${thumbHtml}</div>
+      <div class="ssi-thumb">${thumbHtml}</div>
       <div class="ssi-right">
         <div class="ssi-check"></div>
         <div class="ssi-content">
