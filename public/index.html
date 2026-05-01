@@ -19,16 +19,9 @@
 <header class="header" id="header">
   <div class="container header-inner">
     <a href="/" class="logo">
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-        <rect width="32" height="32" rx="8" fill="#0066ff"/>
-        <path d="M6 18l2-6h16l2 6H6z" fill="white" opacity=".9"/>
-        <circle cx="10" cy="21" r="2.5" fill="white"/>
-        <circle cx="22" cy="21" r="2.5" fill="white"/>
-        <path d="M8 15l1.5-4h13l1.5 4H8z" fill="white" opacity=".5"/>
-        <rect x="4" y="17" width="24" height="4" rx="1" fill="white" opacity=".2"/>
-      </svg>
-      <span>JS <strong>AutoCar</strong></span>
-    </a>
+  <img src="logo.png" alt="JS AutoCar" style="height:44px;width:auto" />
+</a>
+
     <nav class="header-info" id="headerInfo">
       <span class="header-phone" id="headerWhatsapp">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.128.558 4.121 1.533 5.847L0 24l6.335-1.512A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.85 0-3.575-.5-5.062-1.37l-.363-.214-3.761.897.924-3.67-.236-.376A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
@@ -161,6 +154,22 @@
       </div>
     </section>
 
+    <!-- CTA STRIP -->
+    <section class="cta-strip">
+      <div class="container cta-inner">
+        <p class="cta-label">Pronto para agendar?</p>
+        <h2 class="cta-title">Seu carro merece o <span>melhor cuidado</span></h2>
+        <p class="cta-sub">Lavação profissional com qualidade e rapidez. Agende agora mesmo e garanta seu horário.</p>
+        <div class="cta-btns">
+          <button class="btn btn-primary btn-lg" onclick="iniciarAgendamento()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+            Agendar agora
+          </button>
+          <a href="#contato" class="btn btn-outline-light btn-lg">💬 Fale conosco</a>
+        </div>
+      </div>
+    </section>
+
     <!-- GALERIA -->
     <section class="section section-dark" id="galeria">
       <div class="container">
@@ -227,7 +236,7 @@
     </section>
 
     <!-- LOCALIZAÇÃO -->
-    <section class="section section-dark" id="localizacao" style="display:none" id="mapsSection">
+    <section class="section section-dark" id="localizacao" style="display:none">
       <div class="container">
         <div class="section-header">
           <h2 class="section-title">Localização</h2>
@@ -378,7 +387,8 @@
   <div class="container footer-inner">
     <div class="footer-brand">
       <span class="logo-text">JS <strong>AutoCar</strong></span>
-      <p id="footerHorario">Carregando horários...</p>
+      <p>Lavação de carros profissional com qualidade e cuidado premium. Seu veículo em boas mãos.</p>
+      <p id="footerHorario" style="margin-top:.5rem;font-size:.82rem;color:rgba(255,255,255,.38)">Carregando horários...</p>
     </div>
     <div class="footer-links">
       <h4>Links</h4>
