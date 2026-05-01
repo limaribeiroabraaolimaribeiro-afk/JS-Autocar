@@ -1,6 +1,10 @@
 // ─── API BASE URL ─────────────────────────────────────────────────────────────
 const API_BASE_URL = '';
 
+if ('scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual';
+}
+
 // ─── STATE ────────────────────────────────────────────────────────────────────
 const state = {
   servicos: [],
@@ -70,6 +74,71 @@ function setLoading(btn, loading) {
   else { btn.classList.remove('loading'); btn.disabled = false; }
 }
 
+function forceTopOnInitialLoad() {
+  if (window.location.hash) return;
+  window.scrollTo(0, 0);
+  requestAnimationFrame(() => window.scrollTo(0, 0));
+  setTimeout(() => {
+    if (!window.location.hash) window.scrollTo(0, 0);
+  }, 150);
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function resolveImageUrl(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return null;
+  if (/^(https?:)?\/\//i.test(raw) || /^data:image\//i.test(raw) || /^blob:/i.test(raw)) return raw;
+  const cleanPath = raw.replace(/^\.?\//, '');
+  return new URL(cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`, window.location.origin).href;
+}
+
+function getServiceImageUrl(service) {
+  return resolveImageUrl(
+    service.image_url ||
+    service.image ||
+    service.imagem ||
+    service.photo ||
+    service.foto ||
+    service.media_url ||
+    service.url
+  );
+}
+
+function servicePlaceholder(visual, compact = false) {
+  return compact
+    ? `<div class="svc-grad ${visual.grad}"><span class="svc-icon">${visual.icon}</span></div>`
+    : `<div class="svc-grad ${visual.grad}"><span class="svc-icon">${visual.icon}</span><span class="svc-tag">${visual.tag}</span></div>`;
+}
+
+function serviceImageHtml(service, visual, compact = false) {
+  const imageUrl = getServiceImageUrl(service);
+  const placeholder = servicePlaceholder(visual, compact);
+  if (!imageUrl) return placeholder;
+
+  return `
+    ${placeholder}
+    <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(service.name)}" loading="lazy" onerror="handleServiceImageError(this)" />
+  `;
+}
+
+function handleServiceImageError(img) {
+  const parent = img && img.parentElement;
+  if (parent) parent.classList.add('image-error');
+  if (img) {
+    img.hidden = true;
+    img.removeAttribute('src');
+  }
+}
+window.handleServiceImageError = handleServiceImageError;
+
 // ─── PAGES ────────────────────────────────────────────────────────────────────
 function showPage(id) {
   ['pageHome','pageServicos','pageCalendario','pageFormulario','pageSuccess']
@@ -86,6 +155,7 @@ function voltarCalendario(){ showPage('pageCalendario'); }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 async function init() {
+  forceTopOnInitialLoad();
   await loadConfig();
   await loadServicos();
   await loadAvaliacoes();
@@ -170,15 +240,14 @@ function renderServicosGrid() {
   if (!state.servicos.length) { grid.innerHTML = '<p style="text-align:center;color:#666">Nenhum serviço disponível.</p>'; return; }
   grid.innerHTML = state.servicos.map(s => {
     const v = serviceVisual(s.name);
-    const imgHtml = s.image_url
-      ? `<img src="${s.image_url}" alt="${s.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover" />`
-      : `<div class="svc-grad ${v.grad}"><span class="svc-icon">${v.icon}</span><span class="svc-tag">${v.tag}</span></div>`;
+    const imageUrl = getServiceImageUrl(s);
+    const imgHtml = serviceImageHtml(s, v);
     return `
     <div class="service-card">
-      <div class="service-img">${imgHtml}</div>
+      <div class="service-img ${imageUrl ? 'has-image' : ''}">${imgHtml}</div>
       <div class="service-body">
-        <div class="service-name">${s.name}</div>
-        <div class="service-desc">${s.description || ''}</div>
+        <div class="service-name">${escapeHtml(s.name)}</div>
+        <div class="service-desc">${escapeHtml(s.description || '')}</div>
         <div class="service-meta">
           ${s.price ? `<div class="service-price">${formatMoney(s.price)}</div>` : ''}
           <div class="service-duration">⏱ ${formatDuration(s.duration_minutes)}</div>
@@ -196,17 +265,16 @@ function renderServicosSelect() {
   if (!state.servicos.length) { grid.innerHTML = '<p style="color:rgba(255,255,255,.5)">Nenhum serviço disponível.</p>'; return; }
   grid.innerHTML = state.servicos.map(s => {
     const v = serviceVisual(s.name);
-    const thumbHtml = s.image_url
-      ? `<img src="${s.image_url}" alt="${s.name}" style="width:100%;height:100%;object-fit:cover" />`
-      : `<div class="svc-grad ${v.grad}" style="font-size:1.6rem">${v.icon}</div>`;
+    const imageUrl = getServiceImageUrl(s);
+    const thumbHtml = serviceImageHtml(s, v, true);
     return `
     <div class="service-select-item" id="ssi-${s.id}" onclick="toggleServico(${s.id})">
-      <div class="ssi-thumb">${thumbHtml}</div>
+      <div class="ssi-thumb ${imageUrl ? 'has-image' : ''}">${thumbHtml}</div>
       <div class="ssi-right">
         <div class="ssi-check"></div>
         <div class="ssi-content">
-          <div class="ssi-name">${s.name}</div>
-          <div class="ssi-desc">${(s.description || '').slice(0,80)}${(s.description || '').length > 80 ? '…' : ''}</div>
+          <div class="ssi-name">${escapeHtml(s.name)}</div>
+          <div class="ssi-desc">${escapeHtml((s.description || '').slice(0,80))}${(s.description || '').length > 80 ? '…' : ''}</div>
           <div class="ssi-meta">
             ${s.price ? `<div class="ssi-price">${formatMoney(s.price)}</div>` : ''}
             <div class="ssi-dur">⏱ ${formatDuration(s.duration_minutes)}</div>
@@ -512,4 +580,5 @@ async function enviarMensagem(e) {
 }
 
 // ─── START ─────────────────────────────────────────────────────────────────────
+window.addEventListener('pageshow', forceTopOnInitialLoad);
 document.addEventListener('DOMContentLoaded', init);

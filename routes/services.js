@@ -4,6 +4,30 @@ const path     = require('path');
 const { supabaseAdmin } = require('../services/supabase');
 const { requireAdmin }  = require('../middleware/auth');
 
+function normalizeImagePath(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return null;
+  if (/^(https?:)?\/\//i.test(raw) || /^data:image\//i.test(raw)) return raw;
+  return raw.startsWith('/') ? raw : `/${raw.replace(/^\.?\//, '')}`;
+}
+
+function normalizeService(service) {
+  const imageUrl = normalizeImagePath(
+    service.image_url ||
+    service.image ||
+    service.imagem ||
+    service.photo ||
+    service.foto ||
+    service.media_url ||
+    service.url
+  );
+
+  return {
+    ...service,
+    image_url: imageUrl
+  };
+}
+
 const storage = multer.diskStorage({
   destination: (_, __, cb) => cb(null, 'uploads/'),
   filename:    (_, file, cb) => cb(null, `srv-${Date.now()}${path.extname(file.originalname)}`)
@@ -28,7 +52,7 @@ router.get('/', async (req, res) => {
       console.error('[services] erro ao listar serviços:', error.message, error.code, error.details);
       throw error;
     }
-    res.json({ success: true, services: data || [] });
+    res.json({ success: true, services: (data || []).map(normalizeService) });
   } catch (e) {
     console.error('[services] erro interno:', e.message);
     res.status(500).json({ error: 'Erro interno' });

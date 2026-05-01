@@ -443,7 +443,9 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
 /* ─── SERVICES SELECT ─── */
 .services-select-grid {
   display: grid; gap: .85rem;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+  width: 100%;
+  max-width: 100%;
 }
 .service-select-item {
   border: 1.5px solid rgba(0,170,255,.12); border-radius: var(--radius);
@@ -451,6 +453,9 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
   display: flex; align-items: stretch;
   user-select: none; overflow: hidden;
   background: rgba(4,12,24,.95);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 .service-select-item:hover {
   border-color: rgba(0,170,255,.38);
@@ -470,10 +475,18 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
   overflow: hidden; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
   font-size: 2rem;
+  position: relative;
+  background: linear-gradient(135deg, #061326 0%, #102a48 100%);
+  color: var(--blue-neon);
 }
-.ssi-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.ssi-thumb img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  color: transparent; font-size: 0;
+}
+.ssi-thumb img[hidden] { display: none !important; }
 
-.ssi-right { flex: 1; display: flex; gap: .85rem; align-items: flex-start; padding: 1rem; }
+.ssi-right { flex: 1; min-width: 0; display: flex; gap: .85rem; align-items: flex-start; padding: 1rem; }
 
 .ssi-check {
   width: 20px; height: 20px; border-radius: 5px;
@@ -485,9 +498,13 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
   content: '✓'; display: none; position: absolute; top: 50%; left: 50%;
   transform: translate(-50%,-50%); font-size: .75rem; color: var(--text-white); font-weight: 700;
 }
-.ssi-content { flex: 1; }
+.ssi-content { flex: 1; min-width: 0; }
 .ssi-name  { font-weight: 700; margin-bottom: .2rem; color: var(--text-white); font-size: .95rem; }
-.ssi-desc  { font-size: .8rem; color: rgba(255,255,255,.42); margin-bottom: .5rem; line-height: 1.4; }
+.ssi-desc  {
+  font-size: .8rem; color: rgba(255,255,255,.42); margin-bottom: .5rem; line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .ssi-meta  { display: flex; gap: .75rem; flex-wrap: wrap; }
 .ssi-price { color: var(--blue-neon); font-weight: 700; font-size: .9rem; }
 .ssi-dur   { color: rgba(255,255,255,.38); font-size: .8rem; }
@@ -522,6 +539,27 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
 .grad-wax      { background: linear-gradient(135deg, #011f16 0%, #0da870 100%); }
 .grad-delivery { background: linear-gradient(135deg, #060638 0%, #4a4ed4 100%); }
 .grad-default  { background: linear-gradient(135deg, #081020 0%, #182240 100%); }
+
+.service-img.has-image,
+.ssi-thumb.has-image {
+  position: relative;
+}
+.service-img.has-image > .svc-grad,
+.ssi-thumb.has-image > .svc-grad {
+  display: none;
+}
+.service-img.image-error > .svc-grad,
+.ssi-thumb.image-error > .svc-grad {
+  display: flex;
+}
+.service-img.has-image > img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  color: transparent; font-size: 0;
+}
+.service-img.has-image > img[hidden] {
+  display: none !important;
+}
 
 /* ─── CALENDAR ─── */
 .calendar-wrapper {
@@ -689,12 +727,28 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
 /* ─── CONTACT ─── */
 .contact-wrap {
   display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
-.contact-form { display: flex; flex-direction: column; gap: 1rem; }
+.contact-form {
+  display: flex; flex-direction: column; gap: 1rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
 
-.form-group-light { display: flex; flex-direction: column; gap: .4rem; }
+.form-group-light {
+  display: flex; flex-direction: column; gap: .4rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
 .form-group-light label { font-size: .85rem; font-weight: 600; color: var(--text-muted); }
 .form-group-light input, .form-group-light textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: .8rem 1rem;
   border: 1.5px solid rgba(0,170,255,.14);
   border-radius: var(--radius-sm);
@@ -708,15 +762,23 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
   border-color: var(--blue-neon);
   box-shadow: 0 0 0 3px rgba(0,170,255,.1);
 }
-.form-group-light textarea { resize: vertical; min-height: 100px; }
+.form-group-light textarea { resize: vertical; min-height: 100px; overflow-wrap: break-word; }
 
-.contact-info { display: flex; flex-direction: column; gap: 1.25rem; }
+.contact-info {
+  display: flex; flex-direction: column; gap: 1.25rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
 .contact-card {
   display: flex; align-items: flex-start; gap: 1rem;
   background: var(--bg-card);
   border: 1px solid var(--blue-border);
   border-radius: var(--radius); padding: 1.25rem;
   transition: var(--transition);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 .contact-card:hover { border-color: rgba(0,170,255,.32); }
 .cc-icon  { font-size: 1.5rem; flex-shrink: 0; }
@@ -724,7 +786,7 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
   font-size: .73rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: .5px; color: rgba(0,170,255,.7); margin-bottom: .3rem;
 }
-.cc-value { font-size: .95rem; color: var(--silver); font-weight: 500; }
+.cc-value { font-size: .95rem; color: var(--silver); font-weight: 500; overflow-wrap: anywhere; }
 a.cc-value { color: var(--green-wa); font-weight: 700; }
 a.cc-value:hover { text-decoration: underline; }
 
@@ -815,9 +877,19 @@ a.cc-value:hover { text-decoration: underline; }
   .booking-header { flex-wrap: wrap; gap: 1rem; }
 
   /* forms */
-  .form-row { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: minmax(0, 1fr); width: 100%; max-width: 100%; }
   .services-select-grid { grid-template-columns: 1fr; }
-  .contact-wrap { grid-template-columns: 1fr; gap: 2rem; }
+  .contact-wrap { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+  .contact-form,
+  .contact-info,
+  .form-group-light,
+  .form-group-light input,
+  .form-group-light textarea,
+  .contact-card {
+    width: 100%;
+    max-width: 100%;
+  }
+  .contact-form .btn { width: 100%; justify-content: center; }
 
   /* cta */
   .cta-btns { flex-direction: column; align-items: stretch; }
@@ -842,7 +914,9 @@ a.cc-value:hover { text-decoration: underline; }
   .booking-subtitle { font-size: .85rem; margin-bottom: 1.25rem; }
 
   /* service select cards */
-  .ssi-thumb { width: 72px; min-width: 72px; min-height: 80px; font-size: 1.75rem; }
+  .services-select-grid { gap: .75rem; }
+  .service-select-item { min-height: 96px; }
+  .ssi-thumb { width: 88px; min-width: 88px; min-height: 96px; font-size: 1.75rem; }
   .ssi-right { padding: .85rem .85rem .85rem .75rem; gap: .6rem; }
   .ssi-name  { font-size: .88rem; }
   .ssi-desc  {
@@ -870,6 +944,10 @@ a.cc-value:hover { text-decoration: underline; }
   .resumo-label { font-size: .82rem; }
   .resumo-val   { font-size: .85rem; max-width: 58%; }
   .form-resumo  { padding: 1.25rem; }
+
+  .contact-wrap { gap: 1.5rem; }
+  .contact-card { padding: 1rem; }
+  .form-group-light input, .form-group-light textarea { padding: .85rem 1rem; }
 }
 
 /* ── ≤480px ── */
@@ -896,6 +974,7 @@ a.cc-value:hover { text-decoration: underline; }
   /* booking */
   .booking-title { font-size: 1.25rem; }
   .booking-container { padding-left: 1rem; padding-right: 1rem; }
+  .booking-actions .btn { width: 100%; justify-content: center; }
 
   /* grids */
   .services-grid { grid-template-columns: 1fr; }
@@ -920,6 +999,11 @@ a.cc-value:hover { text-decoration: underline; }
   /* form fields — altura mínima para toque */
   .form-group input, .form-group textarea { padding: .9rem 1rem; min-height: 48px; font-size: 1rem; }
   .form-group-light input, .form-group-light textarea { padding: .9rem 1rem; min-height: 48px; }
+  .contact-wrap { gap: 1.25rem; }
+  .contact-card { gap: .75rem; padding: .95rem; }
+  .cc-value { font-size: .88rem; }
+  .ssi-thumb { width: 82px; min-width: 82px; min-height: 92px; }
+  .ssi-right { padding: .78rem; }
 
   /* success */
   .success-container { padding: 3.5rem 1rem; }
@@ -954,5 +1038,8 @@ a.cc-value:hover { text-decoration: underline; }
   .cal-nav-btn { width: 38px; height: 38px; }
 
   .horario-btn { padding: .6rem .75rem; font-size: .82rem; }
-  .ssi-thumb { width: 64px; min-width: 64px; }
+  .ssi-thumb { width: 76px; min-width: 76px; min-height: 88px; }
+  .ssi-right { padding: .7rem; gap: .5rem; }
+  .ssi-check { width: 20px; height: 20px; }
+  .contact-card { padding: .85rem; }
 }
