@@ -76,7 +76,9 @@ function setLoading(btn, loading) {
 }
 
 function forceTopOnInitialLoad() {
-  if (window.location.hash) return;
+  if (window.location.hash) {
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
   // Bypass smooth-scroll CSS to ensure instant jump on mobile
   document.documentElement.style.scrollBehavior = 'auto';
   window.scrollTo(0, 0);
@@ -214,11 +216,9 @@ async function init() {
   if (contactForm) contactForm.addEventListener('submit', enviarMensagem);
 
   // Força topo após todo o conteúdo carregar (evita que API responses movam a página no mobile)
-  if (!window.location.hash) {
-    document.documentElement.style.scrollBehavior = 'auto';
-    window.scrollTo(0, 0);
-    setTimeout(() => { document.documentElement.style.scrollBehavior = ''; }, 100);
-  }
+  document.documentElement.style.scrollBehavior = 'auto';
+  window.scrollTo(0, 0);
+  setTimeout(() => { document.documentElement.style.scrollBehavior = ''; }, 100);
 }
 
 async function loadConfig() {
