@@ -407,11 +407,18 @@ function buildCalendarGrid(year, month) {
     if (isToday) cls += ' today';
     if (isSel)   cls += ' selected';
 
-    const click = isAvail && !isPast ? `onclick="selectDate('${dateStr}')"` : '';
-    html += `<div class="${cls}" ${click}>${d}</div>`;
+    const disabled = !isAvail || isPast ? 'disabled' : '';
+    const label = `Dia ${String(d).padStart(2, '0')}/${String(month + 1).padStart(2, '0')}`;
+    html += `<button type="button" class="${cls}" data-date="${dateStr}" aria-label="${label}" ${disabled}>${d}</button>`;
   }
   grid.innerHTML = html;
 }
+
+$('calendarGrid')?.addEventListener('click', e => {
+  const day = e.target.closest('.cal-day.available:not(:disabled)');
+  if (!day) return;
+  selectDate(day.dataset.date);
+});
 
 async function selectDate(dateStr) {
   state.selectedDate = dateStr; state.selectedHora = null;
@@ -423,6 +430,9 @@ async function selectDate(dateStr) {
   $('horariosTitle').textContent = `Horários disponíveis — ${formatDate(dateStr)}`;
   horariosGrid.innerHTML = '<span style="color:#666">Carregando horários...</span>';
   horariosSection.style.display = '';
+  if (window.innerWidth <= 640) {
+    horariosSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   try {
     state.availableSlots = await api(`/api/timeslots?date=${dateStr}`);

@@ -588,16 +588,23 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
   transition: var(--transition); font-family: inherit;
 }
 .cal-nav-btn:hover { border-color: var(--blue-neon); color: var(--blue-neon); box-shadow: 0 0 12px var(--blue-glow); }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
 .cal-header {
   text-align: center; font-size: .72rem; font-weight: 700;
   color: rgba(0,170,255,.55); padding: .5rem 0; text-transform: uppercase;
 }
 .cal-day {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  font-family: inherit;
   aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
   border-radius: var(--radius-sm); font-size: .88rem; font-weight: 500;
   cursor: default; transition: var(--transition); color: rgba(255,255,255,.2);
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
 }
+.cal-day:disabled { pointer-events: none; }
 .cal-day.past        { color: rgba(255,255,255,.14); }
 .cal-day.unavailable { color: rgba(255,255,255,.2); }
 .cal-day.available {
@@ -944,8 +951,9 @@ a.cc-value:hover { text-decoration: underline; }
   .ssi-check { width: 22px; height: 22px; }
 
   /* calendar */
-  .calendar-wrapper { padding: 1.25rem 1rem; }
-  .cal-day    { font-size: .82rem; }
+  .calendar-wrapper { padding: 1.25rem 1rem; overflow: hidden; }
+  .calendar-grid { gap: 3px; }
+  .cal-day    { min-height: 42px; aspect-ratio: auto; font-size: .82rem; }
   .cal-header { font-size: .65rem; }
   .cal-nav-btn { width: 40px; height: 40px; }
 
@@ -999,8 +1007,9 @@ a.cc-value:hover { text-decoration: underline; }
   .section-header { margin-bottom: 2rem; }
 
   /* calendar */
-  .calendar-wrapper { padding: 1rem .75rem; }
-  .cal-day    { font-size: .78rem; }
+  .calendar-wrapper { padding: .85rem .55rem; }
+  .calendar-grid { gap: 2px; }
+  .cal-day    { min-height: 39px; aspect-ratio: auto; font-size: .78rem; border-radius: 7px; }
   .cal-header { font-size: .6rem; padding: .35rem 0; }
   .calendar-legend { gap: .85rem; }
   .leg-item  { font-size: .72rem; }
@@ -1046,7 +1055,7 @@ a.cc-value:hover { text-decoration: underline; }
 
   .container { padding: 0 .9rem; }
 
-  .cal-day { font-size: .72rem; }
+  .cal-day { min-height: 36px; font-size: .72rem; }
   .cal-header { font-size: .55rem; }
   .cal-nav-btn { width: 38px; height: 38px; }
 
