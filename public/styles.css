@@ -306,8 +306,13 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
   width: 100%; height: 200px; object-fit: cover;
   background: var(--bg-card2);
   display: flex; align-items: center; justify-content: center; font-size: 4rem;
+  position: relative; overflow: hidden;
 }
-.service-img img { width: 100%; height: 100%; object-fit: cover; }
+.service-img img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  color: transparent; font-size: 0;
+}
 .service-body { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
 .service-name { font-size: 1.1rem; font-weight: 700; color: var(--text-white); margin-bottom: .5rem; }
 .service-desc { color: var(--text-muted); font-size: .9rem; margin-bottom: 1rem; flex: 1; }
@@ -540,10 +545,6 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
 .grad-delivery { background: linear-gradient(135deg, #060638 0%, #4a4ed4 100%); }
 .grad-default  { background: linear-gradient(135deg, #081020 0%, #182240 100%); }
 
-/* Imagem oculta antes do onload (hidden attribute) — esconde sem dependência de has-image */
-.service-img img[hidden],
-.ssi-thumb img[hidden] { display: none !important; }
-
 /* Quando a imagem carrega com sucesso, JS adiciona has-image ao pai */
 .service-img.has-image,
 .ssi-thumb.has-image {
@@ -558,12 +559,13 @@ input, textarea, select { font-family: inherit; font-size: 1rem; }
 .ssi-thumb.image-error > .svc-grad {
   display: flex;
 }
-.service-img.has-image > img {
+.service-img > img {
   position: absolute; inset: 0;
   width: 100%; height: 100%; object-fit: cover; display: block;
   color: transparent; font-size: 0;
 }
-.service-img.has-image > img[hidden] {
+.service-img.image-error > img,
+.ssi-thumb.image-error > img {
   display: none !important;
 }
 

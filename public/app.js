@@ -23,6 +23,7 @@ const $ = id => document.getElementById(id);
 const api = async (url, opts = {}) => {
   const r = await fetch(`${API_BASE_URL}${url}`, {
     headers: { 'Content-Type': 'application/json' },
+    cache: 'no-store',
     ...opts
   });
   const data = await r.json();
@@ -144,9 +145,7 @@ function serviceImageHtml(service, visual, compact = false) {
   // onerror: mantém oculta e mostra placeholder.
   return `
     ${placeholder}
-    <img src="${escapeHtml(imageUrl)}" alt="" hidden loading="lazy"
-         onload="handleServiceImageLoad(this)"
-         onerror="handleServiceImageError(this)" />
+    <img src="${escapeHtml(imageUrl)}" alt="" loading="lazy" />
   `;
 }
 
@@ -169,6 +168,17 @@ function handleServiceImageError(img) {
   }
 }
 window.handleServiceImageError = handleServiceImageError;
+
+function bindServiceImages(root = document) {
+  root.querySelectorAll('.service-img img, .ssi-thumb img').forEach(img => {
+    img.addEventListener('load', () => handleServiceImageLoad(img), { once: true });
+    img.addEventListener('error', () => handleServiceImageError(img), { once: true });
+    if (img.complete) {
+      if (img.naturalWidth > 0) handleServiceImageLoad(img);
+      else handleServiceImageError(img);
+    }
+  });
+}
 
 // ─── PAGES ────────────────────────────────────────────────────────────────────
 function showPage(id) {
@@ -254,7 +264,7 @@ async function loadConfig() {
 // ─── SERVICES ─────────────────────────────────────────────────────────────────
 async function loadServicos() {
   try {
-    const svcResult = await api('/api/services');
+    const svcResult = await api(`/api/services?_=${Date.now()}`);
     state.servicos = svcResult.services || [];
     renderServicosGrid();
     renderServicosSelect();
@@ -295,6 +305,7 @@ function renderServicosGrid() {
       </div>
     </div>`;
   }).join('');
+  bindServiceImages(grid);
 }
 
 function renderServicosSelect() {
@@ -319,6 +330,7 @@ function renderServicosSelect() {
       </div>
     </div>`;
   }).join('');
+  bindServiceImages(grid);
 }
 
 function escolherServico(id) {
