@@ -479,29 +479,46 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
    ═══════════════════════════════════ */
 @media (max-width: 768px) {
 
-  /* Ativa bottom nav, desativa hamburger */
-  .bottom-nav { display: block; }
-  .menu-toggle { display: none; }
+  /* Menu lateral pelo botao do topo */
+  .bottom-nav { display: none; }
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255,255,255,.06);
+    color: var(--text);
+    font-size: 1.25rem;
+    line-height: 1;
+  }
 
   /* Sidebar aberta mostra backdrop */
   .sidebar.open ~ .sidebar-backdrop,
   .sidebar-backdrop.visible { display: block; }
 
-  /* Conteúdo com padding abaixo da bottom nav */
+  /* Conteudo em escala de telefone */
   .content {
-    padding: 1rem 1rem calc(68px + env(safe-area-inset-bottom, 0px));
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: .85rem .85rem 1.1rem;
   }
 
   /* Topbar compacto */
-  .topbar { padding: 0 1rem; height: 52px; }
+  .topbar { padding: 0 .85rem; height: 50px; }
+  .topbar > div:first-child { gap: .55rem !important; min-width: 0; }
   .topbar-time { display: none; }
   .topbar-title { font-size: .95rem; }
   .topbar-right .btn { font-size: .72rem; padding: .3rem .65rem; }
 
-  /* Toast acima da bottom nav */
+  /* Toast sem barra inferior fixa */
   .toast-container {
-    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
-    right: 1rem; left: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    right: .85rem; left: .85rem;
   }
   .toast { min-width: 0; width: 100%; }
 
@@ -527,7 +544,7 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
     gap: .3rem;
   }
   .filter-tabs::-webkit-scrollbar { display: none; }
-  .filter-tab { flex-shrink: 0; font-size: .73rem; padding: .32rem .75rem; }
+  .filter-tab { flex-shrink: 0; font-size: .72rem; padding: .32rem .68rem; }
   .filter-tab.active { font-weight: 700; }
 
   /* ── TABELA → CARDS ── */
@@ -618,24 +635,24 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
   }
   #agendamentosTable tbody {
     display: grid;
-    gap: .75rem;
+    gap: .65rem;
   }
   #agendamentosTable tr {
-    padding: .95rem;
+    padding: .82rem;
     box-shadow: 0 10px 30px rgba(0,0,0,.16);
   }
   #agendamentosTable td {
     display: grid;
-    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-columns: 64px minmax(0, 1fr);
     align-items: start;
-    column-gap: .65rem;
+    column-gap: .55rem;
     width: 100%;
     min-width: 0;
     overflow-wrap: anywhere;
   }
   #agendamentosTable td::before {
     min-width: 0;
-    width: 72px;
+    width: 64px;
   }
   #agendamentosTable td > * {
     min-width: 0;
@@ -735,10 +752,48 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
    @media ≤430px
    ═══════════════════════════════ */
 @media (max-width: 430px) {
+  .content {
+    max-width: none;
+    padding: .65rem .65rem .95rem;
+  }
+  .topbar { padding: 0 .65rem; height: 48px; }
+  .menu-toggle {
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+    font-size: 1.15rem;
+  }
+  .topbar-title { font-size: .9rem; }
+  .topbar-right .btn {
+    max-width: 74px;
+    overflow: hidden;
+    white-space: nowrap;
+    padding: .28rem .5rem;
+  }
+
   .stats-grid { gap: .5rem; }
   .stat-card { padding: .8rem .7rem; }
   .stat-card .sc-value { font-size: 1.5rem; }
   .stat-card .sc-label { font-size: .72rem; }
+  .stat-card .sc-sub { font-size: .64rem; }
+
+  .section-hdr { gap: .5rem; margin-bottom: .75rem; }
+  .filter-tab { font-size: .68rem; padding: .28rem .56rem; }
+  #agendamentosTable tr { padding: .72rem; }
+  #agendamentosTable td {
+    grid-template-columns: 58px minmax(0, 1fr);
+    column-gap: .48rem;
+    font-size: .8rem;
+  }
+  #agendamentosTable td::before {
+    width: 58px;
+    font-size: .6rem;
+  }
+  #agendamentosTable td:last-child .btn-act {
+    min-height: 38px;
+    padding: .4rem .45rem;
+    font-size: .72rem;
+  }
 
   .gallery-admin-items { gap: .5rem; }
   .gallery-admin-item img { height: 100px; }
@@ -754,9 +809,10 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
    @media ≤360px
    ═══════════════════════════════ */
 @media (max-width: 360px) {
-  .content { padding-left: .75rem; padding-right: .75rem; }
-  .topbar { padding: 0 .75rem; }
+  .content { padding-left: .55rem; padding-right: .55rem; }
+  .topbar { padding: 0 .55rem; }
   .topbar-title { font-size: .88rem; }
+  .topbar-right .btn { display: none; }
 
   .stats-grid { gap: .4rem; }
   .stat-card { padding: .7rem .6rem; }
@@ -768,6 +824,12 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
 
   .table-wrap tr { padding: .75rem .85rem; }
   .table-wrap td::before { min-width: 55px; font-size: .62rem; }
+  #agendamentosTable tr { padding: .65rem; }
+  #agendamentosTable td {
+    grid-template-columns: 54px minmax(0, 1fr);
+    column-gap: .42rem;
+  }
+  #agendamentosTable td::before { width: 54px; font-size: .58rem; }
 
   .modal { padding: 1.25rem 1rem; }
   .settings-card { padding: .9rem; }
