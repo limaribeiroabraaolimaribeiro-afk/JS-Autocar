@@ -104,8 +104,19 @@ function resolveImageUrl(value) {
   return new URL(cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`, window.location.origin).href;
 }
 
+function withImageVersion(url, version) {
+  if (!url || !version || /^data:image\//i.test(url) || /^blob:/i.test(url)) return url;
+  try {
+    const parsed = new URL(url, window.location.origin);
+    parsed.searchParams.set('v', version);
+    return parsed.href;
+  } catch {
+    return url;
+  }
+}
+
 function getServiceImageUrl(service) {
-  return resolveImageUrl(
+  const imageUrl = resolveImageUrl(
     service.image_url ||
     service.image ||
     service.imagem ||
@@ -114,6 +125,7 @@ function getServiceImageUrl(service) {
     service.media_url ||
     service.url
   );
+  return withImageVersion(imageUrl, service.updated_at || service.id);
 }
 
 function servicePlaceholder(visual, compact = false) {

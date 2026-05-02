@@ -1,6 +1,7 @@
 const router   = require('express').Router();
 const multer   = require('multer');
 const path     = require('path');
+const fs       = require('fs');
 const { supabaseAdmin } = require('../services/supabase');
 const { requireAdmin }  = require('../middleware/auth');
 
@@ -28,10 +29,7 @@ function normalizeService(service) {
   };
 }
 
-const storage = multer.diskStorage({
-  destination: (_, __, cb) => cb(null, 'uploads/'),
-  filename:    (_, file, cb) => cb(null, `srv-${Date.now()}${path.extname(file.originalname)}`)
-});
+const storage = multer.memoryStorage();
 const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
@@ -40,6 +38,47 @@ const upload = multer({
       ? cb(null, true)
       : cb(new Error('Somente JPG, PNG ou WebP'))
 });
+
+async function uploadToSupabaseStorage(file) {
+  const bucket = process.env.SUPABASE_SERVICE_IMAGES_BUCKET || 'service-images';
+  const ext = path.extname(file.originalname || '').toLowerCase() || '.jpg';
+  const filename = `srv-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+  const objectPath = `services/${filename}`;
+
+  await supabaseAdmin.storage.updateBucket(bucket, { public: true }).catch(() => {});
+
+  let uploaded = await supabaseAdmin.storage
+    .from(bucket)
+    .upload(objectPath, file.buffer, {
+      contentType: file.mimetype,
+      cacheControl: '31536000',
+      upsert: false
+    });
+
+  if (uploaded.error && /bucket/i.test(uploaded.error.message || '')) {
+    const created = await supabaseAdmin.storage.createBucket(bucket, { public: true });
+    if (created.error && !/already exists/i.test(created.error.message || '')) throw created.error;
+    uploaded = await supabaseAdmin.storage
+      .from(bucket)
+      .upload(objectPath, file.buffer, {
+        contentType: file.mimetype,
+        cacheControl: '31536000',
+        upsert: false
+      });
+  }
+
+  if (uploaded.error) throw uploaded.error;
+  const { data } = supabaseAdmin.storage.from(bucket).getPublicUrl(objectPath);
+  return data.publicUrl;
+}
+
+function saveUploadLocally(file) {
+  if (!fs.existsSync('uploads')) fs.mkdirSync('uploads', { recursive: true });
+  const ext = path.extname(file.originalname || '').toLowerCase() || '.jpg';
+  const filename = `srv-${Date.now()}${ext}`;
+  fs.writeFileSync(path.join('uploads', filename), file.buffer);
+  return `/uploads/${filename}`;
+}
 
 // GET /api/services  — público: retorna apenas serviços ativos
 router.get('/', async (req, res) => {
@@ -95,10 +134,16 @@ router.delete('/:id', requireAdmin, async (req, res) => {
   } catch (e) { console.error(e); res.status(500).json({ error: 'Erro interno' }); }
 });
 
-// POST /api/services/upload  — admin (upload de imagem local)
-router.post('/upload', requireAdmin, upload.single('imagem'), (req, res) => {
+// POST /api/services/upload  — admin
+router.post('/upload', requireAdmin, upload.single('imagem'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'Nenhuma imagem enviada.' });
-  res.json({ path: `/uploads/${req.file.filename}` });
+  try {
+    const publicUrl = await uploadToSupabaseStorage(req.file);
+    res.json({ path: publicUrl });
+  } catch (e) {
+    console.error('[services] upload no Supabase Storage falhou, usando uploads local:', e.message);
+    res.json({ path: saveUploadLocally(req.file) });
+  }
 });
 
 module.exports = router;
