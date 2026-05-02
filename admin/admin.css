@@ -547,6 +547,34 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
   .filter-tab { flex-shrink: 0; font-size: .72rem; padding: .32rem .68rem; }
   .filter-tab.active { font-weight: 700; }
 
+  #tab-agendamentos {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+  #tab-agendamentos .stats-grid,
+  #tab-agendamentos .section-hdr,
+  #tab-agendamentos .table-wrap,
+  #tab-agendamentos .table-scroll {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  #tab-agendamentos .filter-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    overflow-x: visible;
+    padding-bottom: 0;
+  }
+  #tab-agendamentos .filter-tab {
+    min-width: 0;
+    width: 100%;
+    text-align: center;
+    white-space: normal;
+  }
+
   /* ── TABELA → CARDS ── */
   .table-wrap {
     background: transparent;
@@ -632,6 +660,12 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
   #agendamentosTable tbody,
   #agendamentosTable tr {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  #agendamentosTable {
+    table-layout: fixed;
+    overflow: hidden;
   }
   #agendamentosTable tbody {
     display: grid;
@@ -649,6 +683,7 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
     width: 100%;
     min-width: 0;
     overflow-wrap: anywhere;
+    word-break: break-word;
   }
   #agendamentosTable td::before {
     min-width: 0;
@@ -779,6 +814,7 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
 
   .section-hdr { gap: .5rem; margin-bottom: .75rem; }
   .filter-tab { font-size: .68rem; padding: .28rem .56rem; }
+  #tab-agendamentos .filter-tabs { gap: .28rem; }
   #agendamentosTable tr { padding: .72rem; }
   #agendamentosTable td {
     grid-template-columns: 58px minmax(0, 1fr);
@@ -824,6 +860,14 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
 
   .table-wrap tr { padding: .75rem .85rem; }
   .table-wrap td::before { min-width: 55px; font-size: .62rem; }
+  #tab-agendamentos .filter-tabs {
+    grid-template-columns: 1fr 1fr;
+    gap: .24rem;
+  }
+  #tab-agendamentos .filter-tab {
+    font-size: .63rem;
+    padding: .26rem .38rem;
+  }
   #agendamentosTable tr { padding: .65rem; }
   #agendamentosTable td {
     grid-template-columns: 54px minmax(0, 1fr);
