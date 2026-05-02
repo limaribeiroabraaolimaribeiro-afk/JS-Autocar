@@ -17,7 +17,8 @@ const S = {
   adminHorarios: [],
   editingServicoId: null,
   editingGaleriaId: null,
-  pollingInterval: null
+  pollingInterval: null,
+  serviceImageUploadPromise: null
 };
 
 // ─── UTILS ────────────────────────────────────────────────────────────────────
@@ -485,6 +486,9 @@ function openServicoModal(id = null) {
   S.editingServicoId = id;
   $('servicoModalTitle').textContent = id ? 'Editar serviço' : 'Novo serviço';
   $('smSaveBtn').textContent         = id ? 'Salvar alterações' : 'Criar serviço';
+  S.serviceImageUploadPromise = null;
+  if ($('smImgInput')) $('smImgInput').value = '';
+  setServicoSaving(false);
   if (id) {
     const s = S.servicos.find(x => x.id === id);
     if (!s) return;
@@ -507,6 +511,33 @@ function openServicoModal(id = null) {
 function editarServico(id) { openServicoModal(id); }
 function closeServicoModal() { closeModal('servicoModal'); }
 
+function setServicoSaving(isSaving) {
+  const btn = $('smSaveBtn');
+  if (!btn) return;
+  btn.disabled = isSaving;
+  btn.textContent = isSaving
+    ? 'Salvando...'
+    : (S.editingServicoId ? 'Salvar alterações' : 'Criar serviço');
+}
+
+async function uploadServicoImagemAtual() {
+  const input = $('smImgInput');
+  const file = input?.files?.[0];
+  if (!file) return $('smImgUrl').value.trim();
+  if (file.size > 5 * 1024 * 1024) {
+    input.value = '';
+    throw new Error('Imagem deve ter no máximo 5MB.');
+  }
+
+  const fd = new FormData();
+  fd.append('imagem', file);
+  const r = await apiUpload('/api/services/upload', fd);
+  if (!r.path) throw new Error('Upload não retornou a URL da imagem.');
+  $('smImgUrl').value = r.path;
+  input.value = '';
+  return r.path;
+}
+
 async function previewImagem(input) {
   const file = input.files[0];
   if (!file) return;
@@ -516,12 +547,17 @@ async function previewImagem(input) {
   reader.onload = e => { $('smImgPreview').src = e.target.result; $('smImgPreview').style.display = ''; };
   reader.readAsDataURL(file);
 
-  const fd = new FormData(); fd.append('imagem', file);
   try {
-    const r = await apiUpload('/api/services/upload', fd);
-    $('smImgUrl').value = r.path;
+    setServicoSaving(true);
+    S.serviceImageUploadPromise = uploadServicoImagemAtual();
+    await S.serviceImageUploadPromise;
     showToast('Imagem enviada!');
-  } catch (e) { showToast('Erro no upload: ' + e.message, 'error'); }
+  } catch (e) {
+    showToast('Erro no upload: ' + e.message, 'error');
+  } finally {
+    S.serviceImageUploadPromise = null;
+    setServicoSaving(false);
+  }
 }
 
 async function salvarServico() {
@@ -529,6 +565,16 @@ async function salvarServico() {
   const duration_minutes = parseInt($('smDuracao').value);
   if (!name) { showToast('Nome é obrigatório.', 'error'); return; }
   if (!duration_minutes || duration_minutes < 1) { showToast('Duração inválida.', 'error'); return; }
+
+  try {
+    setServicoSaving(true);
+    if (S.serviceImageUploadPromise) await S.serviceImageUploadPromise;
+    else if ($('smImgInput')?.files?.[0]) await uploadServicoImagemAtual();
+  } catch (e) {
+    setServicoSaving(false);
+    showToast('Erro no upload: ' + e.message, 'error');
+    return;
+  }
 
   const body = {
     name, description: $('smDesc').value.trim() || null,
@@ -547,6 +593,7 @@ async function salvarServico() {
     }
     closeServicoModal(); loadServicos();
   } catch (e) { showToast(e.message, 'error'); }
+  finally { setServicoSaving(false); }
 }
 
 async function desativarServico(id, ativo) {
