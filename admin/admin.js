@@ -5,11 +5,9 @@ const API_BASE_URL = '';
 const S = {
   currentTab: 'agendamentos',
   agendFilter: '',
-  msgFilter: 'todas',
   agendamentos: [],
   servicos: [],
   clientes: [],
-  mensagens: [],
   galeria: [],
   adminCalYear: 0, adminCalMonth: 0,
   adminCalDaysWithSlots: [],
@@ -159,7 +157,7 @@ async function checkNovos() {
 
 // ─── NAVIGATION ───────────────────────────────────────────────────────────────
 function showTab(tab) {
-  const tabs = ['agendamentos','horarios','servicos','clientes','mensagens','galeria','configuracoes'];
+  const tabs = ['agendamentos','horarios','servicos','clientes','galeria','configuracoes'];
   tabs.forEach(t => {
     $(`tab-${t}`).style.display = t === tab ? '' : 'none';
     const ni = document.querySelector(`.nav-item[data-tab="${t}"]`);
@@ -171,7 +169,7 @@ function showTab(tab) {
 
   const titles = {
     agendamentos:'Agendamentos', horarios:'Gerenciar Horários', servicos:'Serviços',
-    clientes:'Clientes', mensagens:'Mensagens', galeria:'Galeria', configuracoes:'Configurações'
+    clientes:'Clientes', galeria:'Galeria', configuracoes:'Configurações'
   };
   $('topbarTitle').textContent = titles[tab] || '';
 
@@ -179,7 +177,6 @@ function showTab(tab) {
   if (tab === 'horarios')     loadAdminCalendar();
   if (tab === 'servicos')     loadServicos();
   if (tab === 'clientes')     loadClientes();
-  if (tab === 'mensagens')    loadMensagens();
   if (tab === 'galeria')      loadGaleria();
   if (tab === 'configuracoes') loadConfigs();
 

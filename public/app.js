@@ -620,18 +620,21 @@ async function enviarMensagem(e) {
   setLoading(btn, true);
 
   try {
-    await api('/api/messages', {
-      method: 'POST',
-      body: JSON.stringify({
-        customer_name:  $('contactNome').value.trim(),
-        customer_phone: $('contactTel').value.replace(/\D/g,''),
-        content:        $('contactMsg').value.trim()
-      })
-    });
-    showToast('Mensagem enviada! Entraremos em contato em breve.', 'success', 5000);
-    e.target.reset();
+    const nome = $('contactNome').value.trim();
+    const telefone = $('contactTel').value.replace(/\D/g, '');
+    const mensagem = $('contactMsg').value.trim();
+    const waNum = state.config.whatsapp_numero || '5547999999999';
+    const texto = encodeURIComponent(
+      `Olá, vim pelo site da JS AutoCar.\n\n` +
+      `Nome: ${nome}\n` +
+      `Meu WhatsApp: ${formatPhone(telefone)}\n\n` +
+      `Mensagem: ${mensagem}`
+    );
+
+    window.open(`https://wa.me/${waNum}?text=${texto}`, '_blank');
+    showToast('Abrindo WhatsApp...', 'success', 2500);
   } catch (err) {
-    showToast(err.message || 'Erro ao enviar mensagem.', 'error');
+    showToast(err.message || 'Erro ao abrir WhatsApp.', 'error');
   } finally {
     setLoading(btn, false);
   }
