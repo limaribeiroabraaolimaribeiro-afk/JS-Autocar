@@ -256,8 +256,6 @@ async function loadConfig() {
     if ($('horarioContato'))  $('horarioContato').textContent  = cfg.horario_funcionamento || 'A confirmar';
 
     // Mascara telefone no formulário de contato
-    const ctTel = $('contactTel');
-    if (ctTel) ctTel.addEventListener('input', ev => { ev.target.value = phoneMask(ev.target.value); });
   } catch (e) { console.warn('Config não carregada:', e.message); }
 }
 
@@ -621,13 +619,11 @@ async function enviarMensagem(e) {
 
   try {
     const nome = $('contactNome').value.trim();
-    const telefone = $('contactTel').value.replace(/\D/g, '');
     const mensagem = $('contactMsg').value.trim();
     const waNum = state.config.whatsapp_numero || '5547999999999';
     const texto = encodeURIComponent(
       `Olá, vim pelo site da JS AutoCar.\n\n` +
       `Nome: ${nome}\n` +
-      `Meu WhatsApp: ${formatPhone(telefone)}\n\n` +
       `Mensagem: ${mensagem}`
     );
 
