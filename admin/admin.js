@@ -7,7 +7,6 @@ const S = {
   agendFilter: '',
   agendamentos: [],
   servicos: [],
-  clientes: [],
   galeria: [],
   adminCalYear: 0, adminCalMonth: 0,
   adminCalDaysWithSlots: [],
@@ -157,7 +156,7 @@ async function checkNovos() {
 
 // ─── NAVIGATION ───────────────────────────────────────────────────────────────
 function showTab(tab) {
-  const tabs = ['agendamentos','horarios','servicos','clientes','galeria','configuracoes'];
+  const tabs = ['agendamentos','horarios','servicos','galeria','configuracoes'];
   tabs.forEach(t => {
     $(`tab-${t}`).style.display = t === tab ? '' : 'none';
     const ni = document.querySelector(`.nav-item[data-tab="${t}"]`);
@@ -169,14 +168,13 @@ function showTab(tab) {
 
   const titles = {
     agendamentos:'Agendamentos', horarios:'Gerenciar Horários', servicos:'Serviços',
-    clientes:'Clientes', galeria:'Galeria', configuracoes:'Configurações'
+    galeria:'Galeria', configuracoes:'Configurações'
   };
   $('topbarTitle').textContent = titles[tab] || '';
 
   if (tab === 'agendamentos') { loadAgendamentos(); loadStats(); markVisto(); }
   if (tab === 'horarios')     loadAdminCalendar();
   if (tab === 'servicos')     loadServicos();
-  if (tab === 'clientes')     loadClientes();
   if (tab === 'galeria')      loadGaleria();
   if (tab === 'configuracoes') loadConfigs();
 
@@ -615,7 +613,7 @@ async function excluirServico(id, nome) {
 }
 
 // ─── CLIENTES ─────────────────────────────────────────────────────────────────
-async function loadClientes() {
+async function loadClientesRemovido() {
   const tbody = $('clientesBody');
   tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#6b7280;padding:2rem">Carregando...</td></tr>`;
   try {

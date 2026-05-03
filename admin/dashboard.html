@@ -31,9 +31,6 @@
     <div class="nav-item" data-tab="servicos" onclick="showTab('servicos')">
       <span class="nav-icon">🔧</span> Serviços
     </div>
-    <div class="nav-item" data-tab="clientes" onclick="showTab('clientes')">
-      <span class="nav-icon">👤</span> Clientes
-    </div>
     <div class="nav-item" data-tab="galeria" onclick="showTab('galeria')">
       <span class="nav-icon">🖼️</span> Galeria
     </div>
@@ -153,23 +150,6 @@
       </div>
     </div>
 
-    <!-- ─── TAB: CLIENTES ─── -->
-    <div id="tab-clientes" style="display:none">
-      <div class="section-hdr"><h2>Clientes</h2></div>
-      <div class="table-wrap">
-        <div class="table-scroll">
-          <table id="clientesTable">
-            <thead>
-              <tr><th>#</th><th>Nome</th><th>Telefone</th><th>Veículo</th><th>Placa</th><th>Cadastrado em</th></tr>
-            </thead>
-            <tbody id="clientesBody">
-              <tr><td colspan="6" style="text-align:center;color:#6b7280;padding:3rem">Carregando...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
     <!-- ─── TAB: GALERIA ─── -->
     <div id="tab-galeria" style="display:none">
       <div class="section-hdr">
@@ -241,10 +221,6 @@
     <button class="bottom-nav-item" data-tab="servicos" onclick="showTab('servicos')">
       <span class="bn-icon">🔧</span>
       <span class="bn-label">Serviços</span>
-    </button>
-    <button class="bottom-nav-item" data-tab="clientes" onclick="showTab('clientes')">
-      <span class="bn-icon">👤</span>
-      <span class="bn-label">Clientes</span>
     </button>
     <button class="bottom-nav-item" data-tab="galeria" onclick="showTab('galeria')">
       <span class="bn-icon">🖼️</span>
