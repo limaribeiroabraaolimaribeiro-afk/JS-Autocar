@@ -352,6 +352,14 @@
         <input type="text" id="glImgUrl" placeholder="https://... ou link do Supabase Storage" />
       </div>
       <div class="form-group">
+        <label>Upload de imagem (opcional)</label>
+        <div class="upload-area" onclick="document.getElementById('glImgInput').click()">
+          <input type="file" id="glImgInput" accept="image/jpeg,image/png,image/webp" onchange="previewGaleriaImagem(this)" />
+          <div class="upload-label">Clique para selecionar JPG/PNG/WebP (mÃ¡x 5MB)</div>
+          <img id="glImgPreview" class="upload-preview" style="display:none" />
+        </div>
+      </div>
+      <div class="form-group">
         <label>Título</label>
         <input type="text" id="glTitulo" placeholder="Ex: Polimento finalizado" />
       </div>
@@ -406,6 +414,6 @@
   </div>
 </div>
 
-<script src="admin.js?v=20260502"></script>
+<script src="admin.js?v=20260503"></script>
 </body>
 </html>

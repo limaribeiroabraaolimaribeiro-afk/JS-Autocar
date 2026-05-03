@@ -18,7 +18,8 @@ const S = {
   editingServicoId: null,
   editingGaleriaId: null,
   pollingInterval: null,
-  serviceImageUploadPromise: null
+  serviceImageUploadPromise: null,
+  galleryImageUploadPromise: null
 };
 
 // ─── UTILS ────────────────────────────────────────────────────────────────────
@@ -718,6 +719,9 @@ async function loadGaleria() {
 
 function openGaleriaModal(id = null) {
   S.editingGaleriaId = id;
+  S.galleryImageUploadPromise = null;
+  if ($('glImgInput')) $('glImgInput').value = '';
+  setGaleriaSaving(false);
   $('galeriaModalTitle').textContent = id ? 'Editar foto' : 'Adicionar foto';
   $('glSaveBtn').textContent         = id ? 'Salvar alterações' : 'Adicionar';
   if (id) {
@@ -728,17 +732,80 @@ function openGaleriaModal(id = null) {
     $('glDesc').value     = g.description || '';
     $('glCategoria').value = g.category  || '';
     $('glAtivo').checked   = !!g.is_active;
+    if (g.image_url) { $('glImgPreview').src = g.image_url; $('glImgPreview').style.display = ''; }
+    else { $('glImgPreview').style.display = 'none'; }
   } else {
     ['glImgUrl','glTitulo','glDesc','glCategoria'].forEach(id => $(id).value = '');
     $('glAtivo').checked = true;
+    $('glImgPreview').style.display = 'none';
   }
   openModal('galeriaModal');
 }
 
 function editarGaleria(id) { openGaleriaModal(id); }
 
+function setGaleriaSaving(isSaving) {
+  const btn = $('glSaveBtn');
+  if (!btn) return;
+  btn.disabled = isSaving;
+  btn.textContent = isSaving
+    ? 'Salvando...'
+    : (S.editingGaleriaId ? 'Salvar alterações' : 'Adicionar');
+}
+
+async function uploadGaleriaImagemAtual() {
+  const input = $('glImgInput');
+  const file = input?.files?.[0];
+  if (!file) return $('glImgUrl').value.trim();
+  if (file.size > 5 * 1024 * 1024) {
+    input.value = '';
+    throw new Error('Imagem deve ter no máximo 5MB.');
+  }
+
+  const fd = new FormData();
+  fd.append('imagem', file);
+  const r = await apiUpload('/api/gallery/upload', fd);
+  if (!r.path) throw new Error('Upload não retornou a URL da imagem.');
+  $('glImgUrl').value = r.path;
+  input.value = '';
+  return r.path;
+}
+
+async function previewGaleriaImagem(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showToast('Imagem deve ter no máximo 5MB.', 'error'); input.value = ''; return; }
+
+  const reader = new FileReader();
+  reader.onload = e => { $('glImgPreview').src = e.target.result; $('glImgPreview').style.display = ''; };
+  reader.readAsDataURL(file);
+
+  try {
+    setGaleriaSaving(true);
+    S.galleryImageUploadPromise = uploadGaleriaImagemAtual();
+    await S.galleryImageUploadPromise;
+    showToast('Imagem enviada!');
+  } catch (e) {
+    showToast('Erro no upload: ' + e.message, 'error');
+  } finally {
+    S.galleryImageUploadPromise = null;
+    setGaleriaSaving(false);
+  }
+}
+
 async function salvarGaleria() {
+  try {
+    setGaleriaSaving(true);
+    if (S.galleryImageUploadPromise) await S.galleryImageUploadPromise;
+    else if ($('glImgInput')?.files?.[0]) await uploadGaleriaImagemAtual();
+  } catch (e) {
+    setGaleriaSaving(false);
+    showToast('Erro no upload: ' + e.message, 'error');
+    return;
+  }
+
   const image_url = $('glImgUrl').value.trim();
+  if (!image_url) setGaleriaSaving(false);
   if (!image_url) { showToast('URL da imagem é obrigatória.', 'error'); return; }
   const body = { image_url, title: $('glTitulo').value.trim() || null, description: $('glDesc').value.trim() || null, category: $('glCategoria').value.trim() || null, is_active: $('glAtivo').checked };
   try {
@@ -751,6 +818,7 @@ async function salvarGaleria() {
     }
     closeModal('galeriaModal'); loadGaleria();
   } catch (e) { showToast(e.message, 'error'); }
+  finally { setGaleriaSaving(false); }
 }
 
 async function excluirGaleria(id) {
